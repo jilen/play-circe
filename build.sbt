@@ -1,8 +1,12 @@
+organization := "scalax"
+
 name := "play-circe"
 
 version := "0.2.0"
 
 scalaVersion := "2.11.7"
+
+crossScalaVersions := Seq("2.10.6", "2.11.7")
 
 libraryDependencies ++= Seq(
   "io.circe" %% "circe-core" % "0.2.0",
