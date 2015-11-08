@@ -12,10 +12,13 @@ object Conf {
   val foo = Foo("foo", bar)
   val port = 12345
 
-  implicit lazy val app = FakeApplication(
+  implicit def app = FakeApplication(
     withRoutes = {
       case ("GET", "/get") => CirceController.get
       case ("POST", "/post") => CirceController.post
+      case ("POST", "/post-json") => CirceController.postJson
+      case ("POST", "/post-tolerant") => CirceController.postTolerate
+      case ("POST", "/post-tolerant-json") => CirceController.postTolerateJson
     }
   )
   lazy val server =  new TestServer(port, app)

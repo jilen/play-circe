@@ -16,4 +16,19 @@ object CirceController extends Controller with Circe {
     val isEqual = request.body == Conf.foo
     Ok(isEqual.toString)
   }
+
+  def postJson = Action(circe.json) { implicit request =>
+    val isEqual = request.body == Conf.foo.asJson
+    Ok(isEqual.toString)
+  }
+
+  def postTolerate = Action(circe.tolerantJson[Foo]) { implicit request =>
+    val isEqual = request.body == Conf.foo
+    Ok(isEqual.toString)
+  }
+
+  def postTolerateJson = Action(circe.tolerantJson) { implicit request =>
+    val isEqual = request.body == Conf.foo.asJson
+    Ok(isEqual.toString)
+  }
 }

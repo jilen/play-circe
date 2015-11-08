@@ -5,7 +5,6 @@ import io.circe.{parse => parser}
 import cats.data.Xor
 import play.api.http._
 import play.api.http.Status._
-
 import play.api.libs.iteratee._
 import play.api.libs.iteratee.Execution.Implicits.trampoline
 import play.api.libs.iteratee.Input._
@@ -47,6 +46,15 @@ trait Circe  {
       tolerantJson(maxLength),
       createBadResult("Expecting text/json or application/json body", UNSUPPORTED_MEDIA_TYPE)
     )
+
+    def tolerantJson[T: Decoder]: BodyParser[T] = tolerantJson.mapM { json =>
+      implicitly[Decoder[T]].decodeJson(json) match {
+        case Xor.Left(e) => Future.failed(e)
+        case Xor.Right(t) => Future.successful(t)
+      }
+    }
+
+    def tolerantJson: BodyParser[Json] = tolerantJson(DefaultMaxTextLength)
 
     def tolerantJson(maxLength: Int): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
