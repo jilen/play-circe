@@ -7,6 +7,7 @@ jdk:
   - oraclejdk8
 
 script:
+  - sbt +test
   - sbt clean coverage test
   - sbt coverageReport
   - sbt coverageAggregate

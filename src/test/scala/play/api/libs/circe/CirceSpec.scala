@@ -11,10 +11,15 @@ import play.api.libs.circe.Conf._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-class CirceSpec extends FlatSpec with ShouldMatchers with EitherValues with ScalaFutures with BeforeAndAfter{
+class CirceSpec extends FlatSpec
+    with ShouldMatchers
+    with EitherValues
+    with ScalaFutures
+    with BeforeAndAfter{
 
-  implicit override val patienceConfig =
-  PatienceConfig(timeout = 10.seconds)
+  val t = DurationInt(10).seconds
+  override implicit  val patienceConfig =
+  PatienceConfig(timeout = t)
 
   before {
     println("staring test server")
