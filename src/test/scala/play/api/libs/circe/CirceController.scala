@@ -1,7 +1,6 @@
 package play.api.libs.circe
 
 import io.circe.generic.auto._
-import io.circe.parse._
 import io.circe.syntax._
 import play.api._
 import play.api.mvc._
