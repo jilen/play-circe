@@ -35,3 +35,5 @@ libraryDependencies := {
         "org.scalamacros" %% "quasiquotes" % "2.0.0" cross CrossVersion.binary)
   }
 }
+
+licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
