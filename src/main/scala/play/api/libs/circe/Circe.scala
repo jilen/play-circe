@@ -11,9 +11,7 @@ import play.api.Logger
 import play.api.mvc._
 import scala.concurrent.Future
 
-
 trait Circe  {
-
 
   implicit def contentTypeOf_Json(implicit codec: Codec): ContentTypeOf[Json] = {
     ContentTypeOf(Some(ContentTypes.JSON))

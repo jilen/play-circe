@@ -1,7 +1,7 @@
 package play.api.libs.circe
 
 import io.circe.generic.auto._
-import io.circe.parse._
+import io.circe.parser._
 import io.circe.syntax._
 import org.scalatest._
 import org.scalatest.concurrent.ScalaFutures
