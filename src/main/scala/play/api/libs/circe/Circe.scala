@@ -1,7 +1,6 @@
 package play.api.libs.circe
 
 import io.circe._
-import io.circe.{parse => parser}
 import cats.data.Xor
 import play.api.http._
 import play.api.http.Status._
