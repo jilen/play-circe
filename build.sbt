@@ -14,7 +14,7 @@ libraryDependencies ++= {
   Seq(
     "io.circe" %% "circe-core" % circeV,
     "io.circe" %% "circe-generic" % circeV,
-    "io.circe" %% "circe-parse" % circeV,
+    "io.circe" %% "circe-parser" % circeV,
     "com.typesafe.play" %% "play" % playV % "provided",
     "org.scalatest" %% "scalatest" % "2.2.5" % "test",
     "com.typesafe.play" %% "play-test" % playV % "test",
