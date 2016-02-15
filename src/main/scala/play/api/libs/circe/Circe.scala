@@ -1,7 +1,6 @@
 package play.api.libs.circe
 
 import io.circe._
-import io.circe.{parse => parser}
 import cats.data.Xor
 import play.api.http._
 import play.api.http.Status._
@@ -12,9 +11,7 @@ import play.api.Logger
 import play.api.mvc._
 import scala.concurrent.Future
 
-
 trait Circe  {
-
 
   implicit def contentTypeOf_Json(implicit codec: Codec): ContentTypeOf[Json] = {
     ContentTypeOf(Some(ContentTypes.JSON))
