@@ -1,15 +1,19 @@
 package play.api.libs.circe
 
+import akka.stream._
+import akka.stream.scaladsl.{ Flow, Sink, StreamConverters }
+import akka.stream.stage._
+import akka.util.ByteString
 import io.circe._
 import cats.data.Xor
 import play.api.http._
 import play.api.http.Status._
-import play.api.libs.iteratee._
 import play.api.libs.iteratee.Execution.Implicits.trampoline
-import play.api.libs.iteratee.Input._
+import play.api.libs.streams.Accumulator
 import play.api.Logger
 import play.api.mvc._
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 trait Circe  {
 
@@ -55,7 +59,7 @@ trait Circe  {
 
     def tolerantJson(maxLength: Int): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
-        parser.parse(new String(bytes, "UTF-8")).toEither
+        jawn.parseByteBuffer(bytes.toByteBuffer).valueOr(throw _)
       }
     }
 
@@ -63,47 +67,46 @@ trait Circe  {
       LazyHttpErrorHandler.onClientError(request, statusCode, msg)
     }
 
-    private def tolerantBodyParser[A](name: String, maxLength: Long, errorMessage: String)(parser: (RequestHeader, Array[Byte]) => Either[Error, A]): BodyParser[A] =
+    /**
+     * Create a body parser that uses the given parser and enforces the given max length.
+     *
+     * @param name The name of the body parser.
+     * @param maxLength The maximum length of the body to buffer.
+     * @param errorMessage The error message to prepend to the exception message if an error was encountered.
+     * @param parser The parser.
+     */
+    private def tolerantBodyParser[A](name: String, maxLength: Long, errorMessage: String)(parser: (RequestHeader, ByteString) => A): BodyParser[A] =
       BodyParser(name + ", maxLength=" + maxLength) { request =>
         import play.api.libs.iteratee.Execution.Implicits.trampoline
-        import scala.util.control._
-        import scala.util.control.Exception._
 
-        val bodyParser: Iteratee[Array[Byte], Either[Result, Either[Future[Result], A]]] =
-          Traversable.takeUpTo[Array[Byte]](maxLength).transform(
-            Iteratee.consume[Array[Byte]]().map { bytes =>
-              parser(request, bytes).left.map {
-                case NonFatal(e) =>
-                  logger.debug(errorMessage, e)
-                  createBadResult(errorMessage + ": " + e.getMessage)(request)
-                case t => throw t
-              }
-            }
-          ).flatMap(checkForEof(request))
+        enforceMaxLength(request, maxLength, Accumulator(
+          Sink.fold[ByteString, ByteString](ByteString.empty)((state, bs) => state ++ bs)
+        ) mapFuture { bytes =>
+          try {
+            Future.successful(Right(parser(request, bytes)))
+          } catch {
+            case NonFatal(e) =>
+              logger.debug(errorMessage, e)
+              createBadResult(errorMessage + ": " + e.getMessage)(request).map(Left(_))
+          }
+        })
+      }
 
-        bodyParser.mapM {
-          case Left(tooLarge) => Future.successful(Left(tooLarge))
-          case Right(Left(badResult)) => badResult.map(Left.apply)
-          case Right(Right(body)) => Future.successful(Right(body))
+
+
+    private def enforceMaxLength[A](request: RequestHeader, maxLength: Long, accumulator: Accumulator[ByteString, Either[Result, A]]): Accumulator[ByteString, Either[Result, A]] = {
+      val takeUpToFlow = Flow.fromGraph(new BodyParsers.TakeUpTo(maxLength))
+      Accumulator(takeUpToFlow.toMat(accumulator.toSink) { (statusFuture, resultFuture) =>
+        import play.api.libs.iteratee.Execution.Implicits.trampoline
+        val defaultCtx = play.api.libs.concurrent.Execution.Implicits.defaultContext
+
+        statusFuture.flatMap {
+          case MaxSizeExceeded(_) =>
+            val badResult = Future.successful(()).flatMap(_ => createBadResult("Request Entity Too Large", REQUEST_ENTITY_TOO_LARGE)(request))(defaultCtx)
+            badResult.map(Left(_))
+          case MaxSizeNotExceeded => resultFuture
         }
-      }
-
-    /**
-     * Check that the input is finished. If it is finished, the iteratee returns `eofValue`.
-     * If the input is not finished then it returns a REQUEST_ENTITY_TOO_LARGE result.
-     */
-    private def checkForEof[A](request: RequestHeader): A => Iteratee[Array[Byte], Either[Result, A]] = { eofValue: A =>
-      import play.api.libs.iteratee.Execution.Implicits.trampoline
-      def cont: Iteratee[Array[Byte], Either[Result, A]] = Cont {
-        case in @ Input.El(e) =>
-          val badResult: Future[Result] = createBadResult("Request Entity Too Large", REQUEST_ENTITY_TOO_LARGE)(request)
-          Iteratee.flatten(badResult.map(r => Done(Left(r), in)))
-        case in @ Input.EOF =>
-          Done(Right(eofValue), in)
-        case Input.Empty =>
-          cont
-      }
-      cont
+      })
     }
   }
 }
