@@ -22,12 +22,10 @@ class CirceSpec extends FlatSpec
   PatienceConfig(timeout = t)
 
   before {
-    println("staring test server")
     server.start()
   }
 
   after {
-    println("stoping testing server")
     server.stop()
   }
 
@@ -48,7 +46,14 @@ class CirceSpec extends FlatSpec
   it should "return bad status while parsing non-json request" in {
     val result = WS.url(s"$serverUrl/post")
       .post(Conf.foo.asJson.noSpaces).map(_.status)
-    result.futureValue should not be 200
+    result.futureValue shouldBe 415
+  }
+
+  it should "return bad status while parsing illegal json string" in {
+    val result = WS.url(s"$serverUrl/post")
+    .withHeaders("Content-Type" -> "application/json")
+      .post("[foo").map(_.status)
+    result.futureValue shouldBe 400
   }
 
   it should "parse json" in {
