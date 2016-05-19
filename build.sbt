@@ -6,7 +6,7 @@ version := "0.3.0"
 
 scalaVersion := "2.11.8"
 
-crossScalaVersions := Seq("2.10.6", "2.11.8")
+crossScalaVersions := Seq("2.11.8")
 
 libraryDependencies ++= {
   val playV = "2.5.3"
