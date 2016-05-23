@@ -2,7 +2,7 @@ organization := "play-circe"
 
 name := "play-circe"
 
-version := "0.3.0"
+version := "2.4.x-0.4.1"
 
 scalaVersion := "2.11.8"
 
