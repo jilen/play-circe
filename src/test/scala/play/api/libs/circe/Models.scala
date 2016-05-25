@@ -21,5 +21,5 @@ object Conf {
       case ("POST", "/post-tolerant-json") => CirceController.postTolerateJson
     }
   )
-  lazy val server =  new TestServer(port, app)
+  def server =  new TestServer(port, app)
 }

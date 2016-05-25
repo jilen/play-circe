@@ -15,18 +15,20 @@ class CirceSpec extends FlatSpec
     with ShouldMatchers
     with EitherValues
     with ScalaFutures
-    with BeforeAndAfter{
+    with BeforeAndAfterAll {
 
   val t = DurationInt(10).seconds
   override implicit  val patienceConfig =
-  PatienceConfig(timeout = t)
+    PatienceConfig(timeout = t)
 
-  before {
-    server.start()
+  val s = play.api.libs.circe.Conf.server
+
+  override def beforeAll() {
+    s.start()
   }
 
-  after {
-    server.stop()
+  override def afterAll() {
+    s.stop()
   }
 
   val serverUrl = s"http://127.0.0.1:${Conf.port}"
