@@ -1,8 +1,6 @@
 package play.api.libs.circe
 
-import akka.stream._
-import akka.stream.scaladsl.{ Flow, Sink, StreamConverters }
-import akka.stream.stage._
+import akka.stream.scaladsl.{ Flow, Sink}
 import akka.util.ByteString
 import io.circe._
 import cats.data.Xor
@@ -29,7 +27,7 @@ trait Circe  {
 
     import BodyParsers._
 
-    @inline def DefaultMaxTextLength: Int = parse.DefaultMaxTextLength
+    @inline def DefaultMaxTextLength: Long = parse.DefaultMaxTextLength.toLong
 
     val logger = Logger(BodyParsers.getClass)
 
@@ -42,7 +40,7 @@ trait Circe  {
 
     def json: BodyParser[Json] = json(DefaultMaxTextLength)
 
-    def json(maxLength: Int): BodyParser[Json] = parse.when(
+    def json(maxLength: Long): BodyParser[Json] = parse.when(
       _.contentType.exists(m => m.equalsIgnoreCase("text/json") || m.equalsIgnoreCase("application/json")),
       tolerantJson(maxLength),
       createBadResult("Expecting text/json or application/json body", UNSUPPORTED_MEDIA_TYPE)
@@ -57,7 +55,7 @@ trait Circe  {
 
     def tolerantJson: BodyParser[Json] = tolerantJson(DefaultMaxTextLength)
 
-    def tolerantJson(maxLength: Int): BodyParser[Json] = {
+    def tolerantJson(maxLength: Long): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
         jawn.parseByteBuffer(bytes.toByteBuffer).valueOr(throw _)
       }

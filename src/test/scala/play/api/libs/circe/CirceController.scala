@@ -2,7 +2,6 @@ package play.api.libs.circe
 
 import io.circe.generic.auto._
 import io.circe.syntax._
-import play.api._
 import play.api.mvc._
 
 object CirceController extends Controller with Circe {
