@@ -8,7 +8,6 @@ import org.scalatest.concurrent.ScalaFutures
 import play.api.libs.ws._
 import play.api.libs.concurrent.Execution.Implicits._
 import play.api.libs.circe.Conf._
-import scala.concurrent.Future
 import scala.concurrent.duration._
 
 class CirceSpec extends FlatSpec

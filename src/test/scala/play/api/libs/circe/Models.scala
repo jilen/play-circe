@@ -4,7 +4,6 @@ case class Bar(bar: Int)
 case class Foo(foo: String, bar: Bar)
 
 import play.api.test._
-import play.api.test.Helpers._
 
 object Conf {
 

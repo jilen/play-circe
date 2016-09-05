@@ -6,7 +6,6 @@ import play.api.http._
 import play.api.http.Status._
 import play.api.libs.iteratee._
 import play.api.libs.iteratee.Execution.Implicits.trampoline
-import play.api.libs.iteratee.Input._
 import play.api.Logger
 import play.api.mvc._
 import scala.concurrent.Future
@@ -25,7 +24,7 @@ trait Circe  {
 
     import BodyParsers._
 
-    @inline def DefaultMaxTextLength: Int = parse.DefaultMaxTextLength
+    @inline def DefaultMaxTextLength: Long = parse.DefaultMaxTextLength.toLong
 
     val logger = Logger(BodyParsers.getClass)
 
@@ -38,7 +37,7 @@ trait Circe  {
 
     def json: BodyParser[Json] = json(DefaultMaxTextLength)
 
-    def json(maxLength: Int): BodyParser[Json] = parse.when(
+    def json(maxLength: Long): BodyParser[Json] = parse.when(
       _.contentType.exists(m => m.equalsIgnoreCase("text/json") || m.equalsIgnoreCase("application/json")),
       tolerantJson(maxLength),
       createBadResult("Expecting text/json or application/json body", UNSUPPORTED_MEDIA_TYPE)
@@ -53,7 +52,7 @@ trait Circe  {
 
     def tolerantJson: BodyParser[Json] = tolerantJson(DefaultMaxTextLength)
 
-    def tolerantJson(maxLength: Int): BodyParser[Json] = {
+    def tolerantJson(maxLength: Long): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
         parser.parse(new String(bytes, "UTF-8")).toEither
       }
@@ -67,7 +66,6 @@ trait Circe  {
       BodyParser(name + ", maxLength=" + maxLength) { request =>
         import play.api.libs.iteratee.Execution.Implicits.trampoline
         import scala.util.control._
-        import scala.util.control.Exception._
 
         val bodyParser: Iteratee[Array[Byte], Either[Result, Either[Future[Result], A]]] =
           Traversable.takeUpTo[Array[Byte]](maxLength).transform(
