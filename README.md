@@ -14,11 +14,11 @@ How to get it
 
 For play 2.5.x
 
-> libraryDependencies += "play-circe" %% "play-circe" % "2.5_0.5.1"
+> libraryDependencies += "play-circe" %% "play-circe" % "2.5-0.5.1"
 
 For play 2.4.x
 
-> libraryDependencies += "play-circe" %% "play-circe" % "2.4_0.5.1"
+> libraryDependencies += "play-circe" %% "play-circe" % "2.4-0.5.1"
 
 
 
