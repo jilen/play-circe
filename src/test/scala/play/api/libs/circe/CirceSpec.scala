@@ -55,7 +55,7 @@ class CirceSpec extends FlatSpec
     result.futureValue shouldBe 400
   }
 
-  it should "work properly with incomplete decode" in {
+  it should "report 400 if decode failed" in {
     import io.circe.generic.semiauto._
     val decoder = deriveFor[Bar]
     val result = WS.url(s"$serverUrl/post")
