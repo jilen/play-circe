@@ -56,8 +56,6 @@ class CirceSpec extends FlatSpec
   }
 
   it should "report 400 if decode failed" in {
-    import io.circe.generic.semiauto._
-    val decoder = deriveFor[Bar]
     val result = WS.url(s"$serverUrl/post")
     .withHeaders("Content-Type" -> "application/json")
       .post("{}").map(_.status)
