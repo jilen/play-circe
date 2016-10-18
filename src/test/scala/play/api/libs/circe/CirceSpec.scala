@@ -63,6 +63,13 @@ class CirceSpec extends FlatSpec
     result.futureValue shouldBe 400
   }
 
+  it should "report 400 if decode failed" in {
+    val result = wsClient.url(s"$serverUrl/post")
+    .withHeaders("Content-Type" -> "application/json")
+      .post("{}").map(_.status)
+    result.futureValue shouldBe 400
+  }
+
   it should "parse json" in {
     val result = wsClient.url(s"$serverUrl/post-json")
       .withHeaders("Content-Type" -> "application/json")

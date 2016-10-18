@@ -3,7 +3,6 @@ package play.api.libs.circe
 import akka.stream.scaladsl.{ Flow, Sink}
 import akka.util.ByteString
 import io.circe._
-import cats.data.Xor
 import play.api.http._
 import play.api.http.Status._
 import play.api.libs.iteratee.Execution.Implicits.trampoline
@@ -31,12 +30,7 @@ trait Circe  {
 
     val logger = Logger(BodyParsers.getClass)
 
-    def json[T: Decoder]: BodyParser[T] = json.mapM { json =>
-      implicitly[Decoder[T]].decodeJson(json) match {
-        case Xor.Left(e) => Future.failed(e)
-        case Xor.Right(t) => Future.successful(t)
-      }
-    }
+    def json[T: Decoder]: BodyParser[T] = json.validate(decodeJson[T])
 
     def json: BodyParser[Json] = json(DefaultMaxTextLength)
 
@@ -46,12 +40,7 @@ trait Circe  {
       createBadResult("Expecting text/json or application/json body", UNSUPPORTED_MEDIA_TYPE)
     )
 
-    def tolerantJson[T: Decoder]: BodyParser[T] = tolerantJson.mapM { json =>
-      implicitly[Decoder[T]].decodeJson(json) match {
-        case Xor.Left(e) => Future.failed(e)
-        case Xor.Right(t) => Future.successful(t)
-      }
-    }
+    def tolerantJson[T: Decoder]: BodyParser[T] = tolerantJson.validate(decodeJson[T])
 
     def tolerantJson: BodyParser[Json] = tolerantJson(DefaultMaxTextLength)
 
@@ -59,6 +48,10 @@ trait Circe  {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
         jawn.parseByteBuffer(bytes.toByteBuffer).valueOr(throw _)
       }
+    }
+
+    private def decodeJson[T: Decoder](json: Json) = {
+      implicitly[Decoder[T]].decodeJson(json).leftMap(_ => Results.BadRequest("Cannot decode request")).toEither
     }
 
     private def createBadResult(msg: String, statusCode: Int = BAD_REQUEST): RequestHeader => Future[Result] = { request =>
