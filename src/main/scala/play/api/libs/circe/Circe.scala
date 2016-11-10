@@ -2,6 +2,7 @@ package play.api.libs.circe
 
 import akka.stream.scaladsl.{ Flow, Sink}
 import akka.util.ByteString
+import cats.syntax.either._
 import io.circe._
 import play.api.http._
 import play.api.http.Status._
@@ -28,7 +29,7 @@ trait Circe  {
 
     @inline def DefaultMaxTextLength: Long = parse.DefaultMaxTextLength.toLong
 
-    val logger = Logger(BodyParsers.getClass)
+    val logger = Logger(classOf[Circe])
 
     def json[T: Decoder]: BodyParser[T] = json.validate(decodeJson[T])
 
@@ -46,12 +47,27 @@ trait Circe  {
 
     def tolerantJson(maxLength: Long): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
-        jawn.parseByteBuffer(bytes.toByteBuffer).valueOr(throw _)
+        val bodyString = new String(bytes.toArray[Byte], detectCharset(request))
+        jawn.parse(bodyString).valueOr { ex =>
+          logger.debug(s"Invalid json string ${bodyString}", ex)
+          throw ex
+        }
+      }
+    }
+
+    private def detectCharset(request: RequestHeader) = {
+      val CharsetPattern = "(?i)\\bcharset=\\s*\"?([^\\s;\"]*)".r
+      request.headers.get("Content-Type") match {
+        case Some(CharsetPattern(c)) => c
+        case _ => "UTF-8"
       }
     }
 
     private def decodeJson[T: Decoder](json: Json) = {
-      implicitly[Decoder[T]].decodeJson(json).leftMap(_ => Results.BadRequest("Cannot decode request")).toEither
+      implicitly[Decoder[T]].decodeJson(json).leftMap { ex =>
+        logger.debug(s"Cannot decode json $json", ex)
+        Results.BadRequest("Cannot decode request")
+      }
     }
 
     private def createBadResult(msg: String, statusCode: Int = BAD_REQUEST): RequestHeader => Future[Result] = { request =>
