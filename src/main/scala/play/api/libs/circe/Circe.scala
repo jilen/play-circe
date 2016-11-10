@@ -1,5 +1,6 @@
 package play.api.libs.circe
 
+import cats.syntax.either._
 import io.circe._
 import play.api.http._
 import play.api.http.Status._
@@ -25,7 +26,7 @@ trait Circe  {
 
     @inline def DefaultMaxTextLength: Long = parse.DefaultMaxTextLength.toLong
 
-    val logger = Logger(BodyParsers.getClass)
+    val logger = Logger(classOf[Circe])
 
     def json[T: Decoder]: BodyParser[T] = json.validate(decodeJson[T])
 
@@ -43,12 +44,22 @@ trait Circe  {
 
     def tolerantJson(maxLength: Long): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
-        parser.parse(new String(bytes, "UTF-8")).toEither
+        val bodyString = new String(bytes, "UTF-8")
+        val result = parser.parse(bodyString)
+        result match {
+          case Left(err) =>
+            logger.info(s"Invalid json string $bodyString", err)
+          case Right(obj) =>
+        }
+        result
       }
     }
 
     private def decodeJson[T: Decoder](json: Json) = {
-      implicitly[Decoder[T]].decodeJson(json).leftMap(_ => Results.BadRequest("Cannot decode request")).toEither
+      implicitly[Decoder[T]].decodeJson(json).leftMap { err =>
+        logger.debug(s"Cannot decode ${json}", err)
+        Results.BadRequest("Cannot decode request")
+      }
     }
 
     private def createBadResult(msg: String, statusCode: Int = BAD_REQUEST): RequestHeader => Future[Result] = { request =>

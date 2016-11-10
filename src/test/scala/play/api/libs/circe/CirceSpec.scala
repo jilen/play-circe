@@ -32,7 +32,7 @@ class CirceSpec extends FlatSpec
 
   "Circe" should "server json" in {
     val result = WS.url(s"$serverUrl/get").get().map(_.body)
-    decode[Foo](result.futureValue).toEither.right.value shouldEqual(Conf.foo)
+    decode[Foo](result.futureValue) shouldBe(Right(foo))
   }
 
   it should "parse json to model" in {
