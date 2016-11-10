@@ -2,7 +2,6 @@ package play.api.libs.circe
 
 import akka.actor._
 import akka.stream._
-import cats.data.Xor
 import io.circe.generic.auto._
 import io.circe.parser._
 import io.circe.syntax._
@@ -40,7 +39,7 @@ class CirceSpec extends FlatSpec
 
   "Circe" should "server json" in {
     val result = wsClient.url(s"$serverUrl/get").get().map(_.body)
-    decode[Foo](result.futureValue) shouldEqual(Xor.right(Conf.foo))
+    decode[Foo](result.futureValue) shouldEqual(Right(Conf.foo))
   }
 
   it should "parse json to model" in {
