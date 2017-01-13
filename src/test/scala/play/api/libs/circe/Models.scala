@@ -18,7 +18,6 @@ object Conf {
       case ("POST", "/post-json") => CirceController.postJson
       case ("POST", "/post-tolerant") => CirceController.postTolerate
       case ("POST", "/post-tolerant-json") => CirceController.postTolerateJson
-      case ("GET", "/get-custom-printed") => CustomPrinterCirceController.get
     }
   )
   def server =  new TestServer(port, app)
