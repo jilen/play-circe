@@ -66,3 +66,12 @@ object CirceController extends Controller with Circe {
   }
 }
 ```
+
+If you want to customize the json output, you can provide an implicit `Printer` in scope 
+(default is `Printer.noSpaces`):
+
+```scala
+import io.circe.Printer
+
+implicit val customPrinter = Printer.spaces2.copy(dropNullKeys = true)
+```

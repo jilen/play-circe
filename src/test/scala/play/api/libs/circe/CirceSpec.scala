@@ -87,4 +87,10 @@ class CirceSpec extends FlatSpec
       .post(Conf.foo.asJson.noSpaces).map(_.body)
     result.futureValue shouldBe "true"
   }
+
+  it should "use the provided custom printer" in {
+    val result = wsClient.url(s"$serverUrl/get-custom-printed")
+      .get().map(_.body)
+    result.futureValue.lines.size should be > 1
+  }
 }
