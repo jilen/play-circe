@@ -12,12 +12,14 @@ import scala.concurrent.Future
 
 trait Circe  {
 
+  private val defaultPrinter = Printer.noSpaces
+
   implicit def contentTypeOf_Json(implicit codec: Codec): ContentTypeOf[Json] = {
     ContentTypeOf(Some(ContentTypes.JSON))
   }
 
-  implicit def writableOf_Json(implicit codec: Codec): Writeable[Json] = {
-    Writeable(a => codec.encode(a.noSpaces))
+  implicit def writableOf_Json(implicit codec: Codec, printer: Printer = defaultPrinter): Writeable[Json] = {
+    Writeable(a => codec.encode(a.pretty(printer)))
   }
 
   object circe {
