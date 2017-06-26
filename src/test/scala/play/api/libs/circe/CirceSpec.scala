@@ -1,96 +1,90 @@
 package play.api.libs.circe
 
-import akka.actor._
-import akka.stream._
 import io.circe.generic.auto._
-import io.circe.parser._
 import io.circe.syntax._
-import org.scalatest._
-import org.scalatest.concurrent.ScalaFutures
-import play.api.libs.ws.ahc.AhcWSClient
-import play.api.libs.concurrent.Execution.Implicits._
-import scala.concurrent.duration._
+import org.scalatestplus.play._
+import org.scalatestplus.play.guice._
+import play.api._
+import play.api.libs.ws.WSClient
+import play.api.routing._
+import play.api.routing.sird._
+import play.api.mvc._
+import play.api.inject.guice._
+import scala.concurrent._
 
-class CirceSpec extends FlatSpec
-    with ShouldMatchers
-    with EitherValues
-    with ScalaFutures
-    with BeforeAndAfterAll {
+class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  implicit val materializer = ActorMaterializer()(ActorSystem())
+  lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
+  lazy val circeController = new CirceController(controllersComponent)
+  lazy val wsClient = app.injector.instanceOf[WSClient]
+  lazy val url = s"http://127.0.0.1:$port"
+  lazy val fooJsonString = circeController.customPrinter.pretty(Data.foo.asJson)
 
-  val wsClient = AhcWSClient()
+  def await[A](f: Future[A]) = Await.result(f, duration.Duration.Inf)
 
-  val t = DurationInt(10).seconds
-  override implicit  val patienceConfig =
-    PatienceConfig(timeout = t)
 
-  val s = play.api.libs.circe.Conf.server
+  override def fakeApplication(): Application =
+    new GuiceApplicationBuilder().router(Router.from {
+      case GET(p"/get") => circeController.get
+      case POST(p"/post") => circeController.post
+      case POST(p"/postJson") => circeController.postJson
+      case POST(p"/postTolerant") => circeController.postTolerant
+      case POST(p"/postTolerantJson") => circeController.postTolerantJson
+    }).build()
 
-  override def beforeAll(): Unit = {
-    s.start()
-  }
 
-  override def afterAll(): Unit =  {
-    s.stop()
-  }
-
-  val serverUrl = s"http://127.0.0.1:${Conf.port}"
-
-  "Circe" should "server json" in {
-    val result = wsClient.url(s"$serverUrl/get").get().map(_.body)
-    decode[Foo](result.futureValue) shouldEqual(Right(Conf.foo))
-  }
-
-  it should "parse json to model" in {
-    val result = wsClient.url(s"$serverUrl/post")
-      .withHeaders("Content-Type" -> "application/json")
-      .post(Conf.foo.asJson.noSpaces).map(_.body)
-    result.futureValue shouldBe "true"
-  }
-
-  it should "return bad status while parsing non-json request" in {
-    val result = wsClient.url(s"$serverUrl/post")
-      .post(Conf.foo.asJson.noSpaces).map(_.status)
-    result.futureValue shouldBe 415
-  }
-
-  it should "return bad status while parsing illegal json string" in {
-    val result = wsClient.url(s"$serverUrl/post")
-    .withHeaders("Content-Type" -> "application/json")
-      .post("[foo").map(_.status)
-    result.futureValue shouldBe 400
-  }
-
-  it should "report 400 if decode failed" in {
-    val result = wsClient.url(s"$serverUrl/post")
-    .withHeaders("Content-Type" -> "application/json")
-      .post("{}").map(_.status)
-    result.futureValue shouldBe 400
-  }
-
-  it should "parse json" in {
-    val result = wsClient.url(s"$serverUrl/post-json")
-      .withHeaders("Content-Type" -> "application/json")
-      .post(Conf.foo.asJson.noSpaces).map(_.body)
-    result.futureValue shouldBe "true"
-  }
-
-  it should "parse tolerant json to model" in {
-    val result = wsClient.url(s"$serverUrl/post-tolerant")
-      .post(Conf.foo.asJson.noSpaces).map(_.body)
-    result.futureValue shouldBe "true"
-  }
-
-  it should "parse tolerant json" in {
-    val result = wsClient.url(s"$serverUrl/post-tolerant-json")
-      .post(Conf.foo.asJson.noSpaces).map(_.body)
-    result.futureValue shouldBe "true"
-  }
-
-  it should "use the provided custom printer" in {
-    val result = wsClient.url(s"$serverUrl/get")
-      .get().map(_.body)
-    result.futureValue.lines.size should be > 1
+  "Circe trait"  must {
+    "server json" in {
+      val expectedJsonString = circeController.customPrinter.pretty(Data.foo.asJson)
+      val resp = await(wsClient.url(url + "/get").get())
+      resp.headers("Content-Type")(0) mustEqual("application/json")
+      resp.body mustEqual fooJsonString
+    }
+    "parse json as object" in {
+      val resp = wsClient
+        .url(url + "/post")
+        .addHttpHeaders("Content-Type" -> "application/json")
+        .post(fooJsonString)
+      await(resp).body mustEqual "true"
+    }
+    "parse json" in {
+      val resp = wsClient
+        .url(url + "/postJson")
+        .addHttpHeaders("Content-Type" -> "application/json")
+        .post(fooJsonString)
+      await(resp).body mustEqual "true"
+    }
+    "parse json as obj for content type `text/html`" in {
+      val resp = wsClient
+        .url(url + "/postTolerant")
+        .post(fooJsonString)
+      await(resp).body mustEqual "true"
+    }
+    "parse json for content type `text/html`" in {
+      val resp = wsClient
+        .url(url + "/postTolerantJson")
+        .post(fooJsonString)
+      await(resp).body mustEqual "true"
+    }
+    "report 415 while parsing non-json content-type" in {
+      val resp = wsClient
+        .url(url + "/post")
+        .post(fooJsonString)
+      await(resp).status mustEqual 415
+    }
+    "report 400 while parsing invalid json String" in {
+      val resp = wsClient
+        .url(url + "/post")
+        .withHttpHeaders("Content-Type" -> "application/json")
+        .post("invalid json string")
+      await(resp).status mustEqual 400
+    }
+    "report 400 if decode failed" in {
+      val resp = wsClient
+        .url(url + "/post")
+        .withHttpHeaders("Content-Type" -> "application/json")
+        .post("{}")
+      await(resp).status mustEqual 400
+    }
   }
 }

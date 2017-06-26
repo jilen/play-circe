@@ -1,35 +1,46 @@
 package play.api.libs.circe
 
+import akka.actor._
+import akka.stream._
 import io.circe.Printer
 import io.circe.generic.auto._
 import io.circe.syntax._
 import play.api.mvc._
 
-object CirceController extends Controller with Circe {
+class CirceController(val controllerComponents: ControllerComponents)
+    extends BaseController
+    with Circe
+    with Results {
 
   implicit val customPrinter = Printer.spaces2.copy(dropNullKeys = true)
 
   def get = Action {
-    Ok(Conf.foo.asJson)
+    Ok(Data.foo.asJson)
   }
 
   def post = Action(circe.json[Foo]) { implicit request =>
-    val isEqual = request.body == Conf.foo
+    val isEqual = request.body == Data.foo
     Ok(isEqual.toString)
   }
 
   def postJson = Action(circe.json) { implicit request =>
-    val isEqual = request.body == Conf.foo.asJson
+    val isEqual = request.body == Data.foo.asJson
     Ok(isEqual.toString)
   }
 
-  def postTolerate = Action(circe.tolerantJson[Foo]) { implicit request =>
-    val isEqual = request.body == Conf.foo
+  def postTolerant = Action(circe.tolerantJson[Foo]) { implicit request =>
+    val isEqual = request.body == Data.foo
     Ok(isEqual.toString)
   }
 
-  def postTolerateJson = Action(circe.tolerantJson) { implicit request =>
-    val isEqual = request.body == Conf.foo.asJson
+  def postTolerantJson = Action(circe.tolerantJson) { implicit request =>
+    val isEqual = request.body == Data.foo.asJson
     Ok(isEqual.toString)
   }
+}
+
+object CirceController {
+  implicit val actorSystem = ActorSystem()
+  implicit val ec = actorSystem.dispatcher
+  implicit val materializer = ActorMaterializer()
 }
