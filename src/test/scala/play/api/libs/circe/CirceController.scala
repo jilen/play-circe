@@ -9,8 +9,7 @@ import play.api.mvc._
 
 class CirceController(val controllerComponents: ControllerComponents)
     extends BaseController
-    with Circe
-    with Results {
+    with Circe {
 
   implicit val customPrinter = Printer.spaces2.copy(dropNullKeys = true)
 
