@@ -12,13 +12,10 @@ How to get it
 
 - Add dependency
 
-For play 2.5.x
+For play 2.6.x
 
-> libraryDependencies += "play-circe" %% "play-circe" % "2.5-0.8.0"
+> libraryDependencies += "play-circe" %% "play-circe" % "2.6-0.8.0"
 
-For play 2.4.x
-
-> libraryDependencies += "play-circe" %% "play-circe" % "2.4-0.7.0"
 
 Usage
 -----
@@ -31,7 +28,7 @@ import io.circe.syntax._
 import play.api._
 import play.api.mvc._
 
-object CirceController extends Controller with Circe {
+class CirceController(val controllerComponents: ControllerComponents) extends BaseController with Circe {
 
   case class Bar(bar: Int)
   case class Foo(foo: String, bar: Bar)
