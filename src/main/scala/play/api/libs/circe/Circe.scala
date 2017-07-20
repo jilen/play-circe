@@ -13,9 +13,11 @@ import play.api.mvc._
 import scala.concurrent.Future
 import scala.util.control.NonFatal
 
-trait Circe extends Status { this: BaseController =>
+trait Circe extends Status {
 
   private val defaultPrinter = Printer.noSpaces
+
+  def parse: PlayBodyParsers
 
   implicit def contentTypeOf_Json(implicit codec: Codec): ContentTypeOf[Json] = {
     ContentTypeOf(Some(ContentTypes.JSON))
