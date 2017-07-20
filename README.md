@@ -14,7 +14,7 @@ How to get it
 
 For play 2.6.x
 
-> libraryDependencies += "play-circe" %% "play-circe" % "2.6-0.8.0"
+> libraryDependencies += "play-circe" %% "play-circe" % "26.08.1"
 
 
 Usage
