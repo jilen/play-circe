@@ -1,10 +1,10 @@
 package play.api.libs.circe
 
+import cats.syntax.either._
+import cats.syntax.show._
 import akka.stream.scaladsl.{ Flow, Sink}
 import akka.util.ByteString
-import cats.syntax.either._
 import io.circe._
-
 import play.api.http._
 import play.api.libs.streams.Execution.Implicits.trampoline
 import play.api.libs.streams.Accumulator
@@ -48,11 +48,12 @@ trait Circe extends Status {
     def tolerantJson(maxLength: Int): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
         val bodyString = new String(bytes.toArray[Byte], detectCharset(request))
-        parser.parse(bodyString).valueOr { ex =>
-          logger.debug(s"Invalid json string ${bodyString}", ex)
-          throw ex
-        }
+        parser.parse(bodyString).leftMap(onCirceError)
       }
+    }
+
+    protected def onCirceError(e: Error): Result = {
+      Results.BadRequest(e.show)
     }
 
     private def detectCharset(request: RequestHeader) = {
@@ -74,13 +75,13 @@ trait Circe extends Status {
       LazyHttpErrorHandler.onClientError(request, statusCode, msg)
     }
 
-    private def tolerantBodyParser[A](name: String, maxLength: Int, errorMessage: String)(parser: (RequestHeader, ByteString) => A): BodyParser[A] = {
+    private def tolerantBodyParser[A](name: String, maxLength: Int, errorMessage: String)(parser: (RequestHeader, ByteString) => Either[Result, A]): BodyParser[A] = {
       BodyParser(name + ", maxLength=" + maxLength) { request =>
         import play.core.Execution.Implicits.trampoline
 
         def parseBody(bytes: ByteString): Future[Either[Result, A]] = {
           try {
-            Future.successful(Right(parser(request, bytes)))
+            Future.successful(parser(request, bytes))
           } catch {
             case NonFatal(e) =>
               logger.debug(errorMessage, e)
