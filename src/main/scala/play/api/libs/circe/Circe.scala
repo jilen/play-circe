@@ -69,7 +69,7 @@ trait Circe extends Status {
     private def decodeJson[T: Decoder](json: Json) = {
       implicitly[Decoder[T]].decodeJson(json).leftMap { ex =>
         logger.debug(s"Cannot decode json $json", ex)
-        Results.BadRequest("Cannot decode request")
+        onCirceError(ex)
       }
     }
 
