@@ -19,6 +19,10 @@ trait Circe extends Status {
 
   def parse: PlayBodyParsers
 
+  protected def onCirceError(e: Error): Result = {
+    Results.BadRequest(e.show)
+  }
+
   implicit def contentTypeOf_Json(implicit codec: Codec): ContentTypeOf[Json] = {
     ContentTypeOf(Some(ContentTypes.JSON))
   }
@@ -52,9 +56,7 @@ trait Circe extends Status {
       }
     }
 
-    protected def onCirceError(e: Error): Result = {
-      Results.BadRequest(e.show)
-    }
+
 
     private def detectCharset(request: RequestHeader) = {
       val CharsetPattern = "(?i)\\bcharset=\\s*\"?([^\\s;\"]*)".r
