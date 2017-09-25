@@ -1,3 +1,5 @@
+import ReleaseTransformations._
+
 organization := "play-circe"
 
 name := "play-circe"
@@ -48,4 +50,33 @@ developers += Developer("jilen",
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
 pomIncludeRepository := (_ => false)
+
+// Add sonatype repository settings
+publishTo := Some(
+  if (isSnapshot.value)
+    Opts.resolver.sonatypeSnapshots
+  else
+    Opts.resolver.sonatypeStaging
+)
+
+// release plugin
+
+releaseCrossBuild := true
+
+releasePublishArtifactsAction := PgpKeys.publishSigned.value // Use publishSigned in publishArtifacts step
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  publishArtifacts,
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
 
