@@ -6,15 +6,12 @@
 
 How to get it
 -------------
-- Add repository
-
-> resolvers += "Bintary JCenter" at "http://jcenter.bintray.com"
 
 - Add dependency
 
 For play 2.6.x
 
-> libraryDependencies += "play-circe" %% "play-circe" % "2608.3"
+> libraryDependencies += "com.dripower" %% "play-circe" % "2608.5"
 
 
 Usage
