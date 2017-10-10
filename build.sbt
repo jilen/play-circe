@@ -1,6 +1,6 @@
 import ReleaseTransformations._
 
-organization := "play-circe"
+organization := "com.dripower"
 
 name := "play-circe"
 
@@ -20,8 +20,6 @@ libraryDependencies ++= {
     "com.typesafe.play" %% "play-ws" % playV % Test
   )
 }
-
-licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -79,4 +77,3 @@ releaseProcess := Seq[ReleaseStep](
   releaseStepCommand("sonatypeReleaseAll"),
   pushChanges
 )
-
