@@ -1,3 +1,5 @@
+import ReleaseTransformations._
+
 organization := "play-circe"
 
 name := "play-circe"
@@ -19,7 +21,6 @@ libraryDependencies ++= {
   )
 }
 
-
 licenses += ("MIT", url("http://opensource.org/licenses/MIT"))
 
 scalacOptions ++= Seq(
@@ -34,3 +35,48 @@ scalacOptions ++= Seq(
   "-Ywarn-value-discard",
   "-Xfuture",
   "-Ywarn-unused-import")
+
+// POM settings for Sonatype
+homepage := Some(url("https://github.com/jilen/play-circe"))
+
+scmInfo := Some(ScmInfo(url("https://github.com/jilen/play-circe"),
+  "git@github.com:jilen/play-circe.git"))
+
+developers += Developer("jilen",
+  "jilen",
+  "jilen.zhang@gmail.com",
+  url("https://github.com/jilen"))
+
+licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
+
+pomIncludeRepository := (_ => false)
+
+// Add sonatype repository settings
+publishTo := Some(
+  if (isSnapshot.value)
+    Opts.resolver.sonatypeSnapshots
+  else
+    Opts.resolver.sonatypeStaging
+)
+
+// release plugin
+
+releaseCrossBuild := true
+
+releasePublishArtifactsAction := PgpKeys.publishSigned.value // Use publishSigned in publishArtifacts step
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  runClean,
+  runTest,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  publishArtifacts,
+  setNextVersion,
+  commitNextVersion,
+  releaseStepCommand("sonatypeReleaseAll"),
+  pushChanges
+)
+
