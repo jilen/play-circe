@@ -35,7 +35,6 @@ class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
 
   "Circe trait"  must {
     "server json" in {
-      val expectedJsonString = circeController.customPrinter.pretty(Data.foo.asJson)
       val resp = await(wsClient.url(url + "/get").get())
       resp.headers("Content-Type")(0) mustEqual("application/json")
       resp.body mustEqual fooJsonString
