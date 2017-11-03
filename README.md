@@ -67,5 +67,5 @@ If you want to customize the json output, you can provide an implicit `Printer` 
 ```scala
 import io.circe.Printer
 
-implicit val customPrinter = Printer.spaces2.copy(dropNullKeys = true)
+implicit val customPrinter = Printer.spaces2.copy(dropNullValues = true)
 ```
