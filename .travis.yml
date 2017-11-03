@@ -11,7 +11,7 @@ before_install:
 
 script:
   - sbt +test
-  - sbt clean coverage test
+  - sbt clean coverage test coverageReport
 
 after_success:
-  - codecov
+- codecov
