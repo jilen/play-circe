@@ -11,7 +11,7 @@ class CirceController(val controllerComponents: ControllerComponents)
     extends BaseController
     with Circe {
 
-  implicit val customPrinter = Printer.spaces2.copy(dropNullKeys = true)
+  implicit val customPrinter = Printer.spaces2.copy(dropNullValues = true)
 
   def get = Action {
     Ok(Data.foo.asJson)

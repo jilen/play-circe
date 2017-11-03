@@ -23,7 +23,7 @@ trait Circe extends Status {
     Results.BadRequest(e.show)
   }
 
-  implicit def contentTypeOf_Json(implicit codec: Codec): ContentTypeOf[Json] = {
+  implicit val contentTypeOf_Json: ContentTypeOf[Json] = {
     ContentTypeOf(Some(ContentTypes.JSON))
   }
 
