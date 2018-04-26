@@ -2,13 +2,13 @@ organization := "play-circe"
 
 name := "play-circe"
 
-scalaVersion := "2.11.8"
+scalaVersion := "2.11.12"
 
-crossScalaVersions := Seq("2.11.8")
+crossScalaVersions := Seq("2.11.12")
 
 libraryDependencies ++= {
-  val playV = "2.4.6"
-  val circeV = "0.7.0"
+  val playV = "2.4.11"
+  val circeV = "0.9.3"
   Seq(
     "io.circe" %% "circe-core" % circeV,
     "io.circe" %% "circe-generic" % circeV,
