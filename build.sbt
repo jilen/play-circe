@@ -4,19 +4,19 @@ organization := "com.dripower"
 
 name := "play-circe"
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.12.6"
 
-crossScalaVersions := Seq("2.11.12", "2.12.4")
+crossScalaVersions := Seq("2.11.12", "2.12.6")
 
 libraryDependencies ++= {
-  val playV = "2.6.11"
-  val circeV = "0.9.1"
+  val playV = "2.6.13"
+  val circeV = "0.9.3"
   Seq(
     "io.circe" %% "circe-core" % circeV,
     "io.circe" %% "circe-generic" % circeV,
     "io.circe" %% "circe-parser" % circeV,
     "com.typesafe.play" %% "play" % playV % Provided,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.0.0" % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
     "com.typesafe.play" %% "play-ws" % playV % Test
   )
 }
