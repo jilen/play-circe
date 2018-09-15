@@ -1,7 +1,6 @@
 package play.api.libs.circe
 
-import cats.syntax.either._
-import cats.syntax.show._
+import cats.syntax.all._
 import akka.stream.scaladsl.{ Flow, Sink}
 import akka.util.ByteString
 import io.circe._
@@ -16,6 +15,7 @@ import scala.util.control.NonFatal
 trait Circe extends Status {
 
   private val defaultPrinter = Printer.noSpaces
+  private def parserErrorHandler = Play.privateMaybeApplication.fold[HttpErrorHandler](DefaultHttpErrorHandler)(_.errorHandler)
 
   def parse: PlayBodyParsers
 
