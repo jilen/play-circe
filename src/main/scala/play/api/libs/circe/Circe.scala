@@ -15,7 +15,7 @@ import scala.util.control.NonFatal
 trait Circe extends Status {
 
   private val defaultPrinter = Printer.noSpaces
-  private def parserErrorHandler = new DefaultHttpErrorHandler
+  protected def circeErrorHandler: HttpErrorHandler = new DefaultHttpErrorHandler
 
   def parse: PlayBodyParsers
 
@@ -74,7 +74,7 @@ trait Circe extends Status {
     }
 
     private def createBadResult(msg: String, statusCode: Int = BAD_REQUEST): RequestHeader => Future[Result] = { request =>
-      parserErrorHandler.onClientError(request, statusCode, msg)
+      circeErrorHandler.onClientError(request, statusCode, msg)
     }
 
     private def tolerantBodyParser[A](name: String, maxLength: Int, errorMessage: String)(parser: (RequestHeader, ByteString) => Either[Result, A]): BodyParser[A] = {
