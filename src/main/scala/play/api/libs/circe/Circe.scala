@@ -8,6 +8,7 @@ import play.api.http._
 import play.api.libs.streams.Execution.Implicits.trampoline
 import play.api.libs.streams.Accumulator
 import play.api.Logger
+import play.api.Play
 import play.api.mvc._
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -74,7 +75,7 @@ trait Circe extends Status {
     }
 
     private def createBadResult(msg: String, statusCode: Int = BAD_REQUEST): RequestHeader => Future[Result] = { request =>
-      LazyHttpErrorHandler.onClientError(request, statusCode, msg)
+      parserErrorHandler.onClientError(request, statusCode, msg)
     }
 
     private def tolerantBodyParser[A](name: String, maxLength: Int, errorMessage: String)(parser: (RequestHeader, ByteString) => Either[Result, A]): BodyParser[A] = {
