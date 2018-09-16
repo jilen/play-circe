@@ -8,7 +8,6 @@ import play.api.http._
 import play.api.libs.streams.Execution.Implicits.trampoline
 import play.api.libs.streams.Accumulator
 import play.api.Logger
-import play.api.Play
 import play.api.mvc._
 import scala.concurrent.Future
 import scala.util.control.NonFatal
@@ -16,7 +15,7 @@ import scala.util.control.NonFatal
 trait Circe extends Status {
 
   private val defaultPrinter = Printer.noSpaces
-  private def parserErrorHandler = Play.privateMaybeApplication.fold[HttpErrorHandler](DefaultHttpErrorHandler)(_.errorHandler)
+  private def parserErrorHandler = new DefaultHttpErrorHandler
 
   def parse: PlayBodyParsers
 
