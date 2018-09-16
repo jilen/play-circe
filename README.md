@@ -61,11 +61,21 @@ class CirceController(val controllerComponents: ControllerComponents) extends Ba
 }
 ```
 
-If you want to customize the json output, you can provide an implicit `Printer` in scope 
+# FAQ
+
++ If you want to customize the json output, you can provide an implicit `Printer` in scope 
 (default is `Printer.noSpaces`):
 
 ```scala
 import io.circe.Printer
 
 implicit val customPrinter = Printer.spaces2.copy(dropNullValues = true)
+```
+
++ The `Circe` totally ignore the configured `HttpErrorHandler` and just use `DefaultHttpErrorHandler`.
+If this not what you want, simply make an trait to override `circeErrorHandler` like this
+```scala
+class MyController @Inject() (val errorHandler: HttpErrorHandler, val controllerComponents: ControllerComponents) extends BaseController with Circe {
+  override def circeErrorHandler = errorHandler
+}
 ```

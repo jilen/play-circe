@@ -24,13 +24,15 @@ class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
 
 
   override def fakeApplication(): Application =
-    new GuiceApplicationBuilder().router(Router.from {
-      case GET(p"/get") => circeController.get
-      case POST(p"/post") => circeController.post
-      case POST(p"/postJson") => circeController.postJson
-      case POST(p"/postTolerant") => circeController.postTolerant
-      case POST(p"/postTolerantJson") => circeController.postTolerantJson
-    }).build()
+    new GuiceApplicationBuilder()
+      .configure("play.allowGlobalApplication" -> "false")
+      .router(Router.from {
+        case GET(p"/get") => circeController.get
+        case POST(p"/post") => circeController.post
+        case POST(p"/postJson") => circeController.postJson
+        case POST(p"/postTolerant") => circeController.postTolerant
+        case POST(p"/postTolerantJson") => circeController.postTolerantJson
+      }).build()
 
 
   "Circe trait"  must {

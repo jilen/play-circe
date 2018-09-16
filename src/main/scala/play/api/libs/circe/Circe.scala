@@ -1,7 +1,6 @@
 package play.api.libs.circe
 
-import cats.syntax.either._
-import cats.syntax.show._
+import cats.syntax.all._
 import akka.stream.scaladsl.{ Flow, Sink}
 import akka.util.ByteString
 import io.circe._
@@ -16,6 +15,7 @@ import scala.util.control.NonFatal
 trait Circe extends Status {
 
   private val defaultPrinter = Printer.noSpaces
+  protected def circeErrorHandler: HttpErrorHandler = new DefaultHttpErrorHandler
 
   def parse: PlayBodyParsers
 
@@ -74,7 +74,7 @@ trait Circe extends Status {
     }
 
     private def createBadResult(msg: String, statusCode: Int = BAD_REQUEST): RequestHeader => Future[Result] = { request =>
-      LazyHttpErrorHandler.onClientError(request, statusCode, msg)
+      circeErrorHandler.onClientError(request, statusCode, msg)
     }
 
     private def tolerantBodyParser[A](name: String, maxLength: Int, errorMessage: String)(parser: (RequestHeader, ByteString) => Either[Result, A]): BodyParser[A] = {
