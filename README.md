@@ -11,7 +11,7 @@ How to get it
 
 For play 2.6.x
 
-> libraryDependencies += "com.dripower" %% "play-circe" % "2609.1"
+> libraryDependencies += "com.dripower" %% "play-circe" % "2609.2"
 
 
 Usage
