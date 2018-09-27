@@ -11,6 +11,7 @@ import play.api.Logger
 import play.api.mvc._
 import scala.concurrent.Future
 import scala.util.control.NonFatal
+import scala.util.Try
 
 trait Circe extends Status {
 
@@ -79,12 +80,9 @@ trait Circe extends Status {
 
     private def tolerantBodyParser[A](name: String, maxLength: Int, errorMessage: String)(parser: (RequestHeader, ByteString) => Either[Result, A]): BodyParser[A] = {
       BodyParser(name + ", maxLength=" + maxLength) { request =>
-        import play.core.Execution.Implicits.trampoline
 
         def parseBody(bytes: ByteString): Future[Either[Result, A]] = {
-          try {
-            Future.successful(parser(request, bytes))
-          } catch {
+          Future.fromTry(Try(parser(request, bytes))).recoverWith {
             case NonFatal(e) =>
               logger.debug(errorMessage, e)
               createBadResult(errorMessage + ": " + e.getMessage)(request).map(Left(_))
@@ -113,7 +111,6 @@ trait Circe extends Status {
     private[play] def enforceMaxLength[A](request: RequestHeader, maxLength: Int, accumulator: Accumulator[ByteString, Either[Result, A]]): Accumulator[ByteString, Either[Result, A]] = {
       val takeUpToFlow = Flow.fromGraph(new BodyParsers.TakeUpTo(maxLength.toLong))
       Accumulator(takeUpToFlow.toMat(accumulator.toSink) { (statusFuture, resultFuture) =>
-        import play.core.Execution.Implicits.trampoline
         statusFuture.flatMap {
           case MaxSizeExceeded(_) =>
             val badResult = createBadResult("Request Entity Too Large", REQUEST_ENTITY_TOO_LARGE)(request)

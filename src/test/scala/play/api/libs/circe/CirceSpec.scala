@@ -32,6 +32,7 @@ class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
         case POST(p"/postJson") => circeController.postJson
         case POST(p"/postTolerant") => circeController.postTolerant
         case POST(p"/postTolerantJson") => circeController.postTolerantJson
+        case _ => new Handler{}
       }).build()
 
 
