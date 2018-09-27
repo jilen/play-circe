@@ -2,7 +2,7 @@
 =====================================================================================================
 [![Build Status](https://travis-ci.org/jilen/play-circe.svg?branch=master)](https://travis-ci.org/jilen/play-circe)
 [![Codacy Badge](https://api.codacy.com/project/badge/grade/c9fcd36a885546f8b9d2a427853e5353)](https://www.codacy.com/app/jilen-zhang/play-circe)
-[![codecov.io](https://codecov.io/github/jilen/play-circe/coverage.svg?branch=master)](https://codecov.io/github/jilen/play-circe?branch=master)
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/c9fcd36a885546f8b9d2a427853e5353)](https://www.codacy.com/app/jilen-zhang/play-circe?utm_source=github.com&utm_medium=referral&utm_content=jilen/play-circe&utm_campaign=Badge_Coverage)
 
 How to get it
 -------------
@@ -11,7 +11,7 @@ How to get it
 
 For play 2.6.x
 
-> libraryDependencies += "com.dripower" %% "play-circe" % "2609.2"
+> libraryDependencies += "com.dripower" %% "play-circe" % "2610.0"
 
 
 Usage
