@@ -8,5 +8,4 @@ jdk:
 
 script:
   - sbt +test
-  - sbt clean coverage test coverageReport
-  - sbt codacyCoverage
+  - sbt clean coverage test coverageReport coverageAggregate codacyCoverage
