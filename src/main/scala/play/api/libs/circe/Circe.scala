@@ -1,17 +1,17 @@
 package play.api.libs.circe
+import scala.concurrent.Future
+import scala.util.Try
+import scala.util.control.NonFatal
 
-import cats.syntax.all._
-import akka.stream.scaladsl.{ Flow, Sink}
+import akka.stream.scaladsl.{Flow, Sink}
 import akka.util.ByteString
+import cats.implicits._
 import io.circe._
+import play.api.Logger
 import play.api.http._
 import play.api.libs.streams.Execution.Implicits.trampoline
 import play.api.libs.streams.Accumulator
-import play.api.Logger
 import play.api.mvc._
-import scala.concurrent.Future
-import scala.util.control.NonFatal
-import scala.util.Try
 
 trait Circe extends Status {
 
@@ -40,7 +40,7 @@ trait Circe extends Status {
 
     def json: BodyParser[Json] = json(parse.DefaultMaxTextLength)
 
-    def json(maxLength: Int): BodyParser[Json] = parse.when(
+    def json(maxLength: Long): BodyParser[Json] = parse.when(
       _.contentType.exists(m => m.equalsIgnoreCase("text/json") || m.equalsIgnoreCase("application/json")),
       tolerantJson(maxLength),
       createBadResult("Expecting text/json or application/json body", UNSUPPORTED_MEDIA_TYPE)
@@ -50,7 +50,7 @@ trait Circe extends Status {
 
     def tolerantJson: BodyParser[Json] = tolerantJson(parse.DefaultMaxTextLength)
 
-    def tolerantJson(maxLength: Int): BodyParser[Json] = {
+    def tolerantJson(maxLength: Long): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
         val bodyString = new String(bytes.toArray[Byte], detectCharset(request))
         parser.parse(bodyString).leftMap(onCirceError)
@@ -78,7 +78,7 @@ trait Circe extends Status {
       circeErrorHandler.onClientError(request, statusCode, msg)
     }
 
-    private def tolerantBodyParser[A](name: String, maxLength: Int, errorMessage: String)(parser: (RequestHeader, ByteString) => Either[Result, A]): BodyParser[A] = {
+    private def tolerantBodyParser[A](name: String, maxLength: Long, errorMessage: String)(parser: (RequestHeader, ByteString) => Either[Result, A]): BodyParser[A] = {
       BodyParser(name + ", maxLength=" + maxLength) { request =>
 
         def parseBody(bytes: ByteString): Future[Either[Result, A]] = {
@@ -108,8 +108,8 @@ trait Circe extends Status {
     }
 
 
-    private[play] def enforceMaxLength[A](request: RequestHeader, maxLength: Int, accumulator: Accumulator[ByteString, Either[Result, A]]): Accumulator[ByteString, Either[Result, A]] = {
-      val takeUpToFlow = Flow.fromGraph(new BodyParsers.TakeUpTo(maxLength.toLong))
+    private[play] def enforceMaxLength[A](request: RequestHeader, maxLength: Long, accumulator: Accumulator[ByteString, Either[Result, A]]): Accumulator[ByteString, Either[Result, A]] = {
+      val takeUpToFlow = Flow.fromGraph(new BodyParsers.TakeUpTo(maxLength))
       Accumulator(takeUpToFlow.toMat(accumulator.toSink) { (statusFuture, resultFuture) =>
         statusFuture.flatMap {
           case MaxSizeExceeded(_) =>
