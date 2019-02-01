@@ -38,7 +38,7 @@ trait Circe extends Status {
 
     def json[T: Decoder]: BodyParser[T] = json.validate(decodeJson[T])
 
-    def json: BodyParser[Json] = json(parse.DefaultMaxTextLength)
+    def json: BodyParser[Json] = json(parse.DefaultMaxTextLength.toInt)
 
     def json(maxLength: Int): BodyParser[Json] = parse.when(
       _.contentType.exists(m => m.equalsIgnoreCase("text/json") || m.equalsIgnoreCase("application/json")),
@@ -48,7 +48,7 @@ trait Circe extends Status {
 
     def tolerantJson[T: Decoder]: BodyParser[T] = tolerantJson.validate(decodeJson[T])
 
-    def tolerantJson: BodyParser[Json] = tolerantJson(parse.DefaultMaxTextLength)
+    def tolerantJson: BodyParser[Json] = tolerantJson(parse.DefaultMaxTextLength.toInt)
 
     def tolerantJson(maxLength: Int): BodyParser[Json] = {
       tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>

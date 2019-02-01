@@ -2,21 +2,28 @@ import ReleaseTransformations._
 
 organization := "com.dripower"
 
-name := "play-circe"
-
 scalaVersion := "2.12.8"
 
 crossScalaVersions := Seq("2.11.12", "2.12.8")
 
+def playV = {
+  sys.props.get("play.version").getOrElse("2.7.0")
+}
+
+def scalaTestPlusV = {
+  if(playV.startsWith("2.6")) "3.1.2" else "4.0.0"
+}
+
+name := s"play-circe${playV.take(3).replace(".", "")}"
+
 libraryDependencies ++= {
-  val playV = "2.6.20"
   val circeV = "0.11.0"
   Seq(
     "io.circe" %% "circe-core" % circeV,
     "io.circe" %% "circe-parser" % circeV,
     "com.typesafe.play" %% "play" % playV % Provided,
     "io.circe" %% "circe-generic" % circeV % Test,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % scalaTestPlusV % Test,
     "com.typesafe.play" %% "play-ws" % playV % Test
   )
 }
