@@ -14,7 +14,7 @@ def scalaTestPlusV = {
   if(playV.startsWith("2.6")) "3.1.2" else "4.0.0"
 }
 
-name := s"play-circe${playV.take(3).replace(".", "")}"
+name := s"play${playV.take(3).replace(".", "")}-circe"
 
 libraryDependencies ++= {
   val circeV = "0.11.0"
