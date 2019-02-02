@@ -9,14 +9,14 @@ scalaVersion := "2.12.8"
 crossScalaVersions := Seq("2.11.12", "2.12.8")
 
 libraryDependencies ++= {
-  val playV = "2.6.20"
-  val circeV = "0.11.0"
+  val playV = "2.7.0"
+  val circeV = "0.11.1"
   Seq(
     "io.circe" %% "circe-core" % circeV,
     "io.circe" %% "circe-parser" % circeV,
     "com.typesafe.play" %% "play" % playV % Provided,
     "io.circe" %% "circe-generic" % circeV % Test,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.0" % Test,
     "com.typesafe.play" %% "play-ws" % playV % Test
   )
 }
