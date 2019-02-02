@@ -74,7 +74,7 @@ trait Circe extends Status {
       }
     }
 
-    private def createBadResult(msg: String, statusCode: Long = BAD_REQUEST): RequestHeader => Future[Result] = { request =>
+    private def createBadResult(msg: String, statusCode: Int = BAD_REQUEST): RequestHeader => Future[Result] = { request =>
       circeErrorHandler.onClientError(request, statusCode, msg)
     }
 
