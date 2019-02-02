@@ -77,13 +77,12 @@ releaseProcess := {
 
   if(playV.startsWith("2.7"))
     Seq[ReleaseStep](
-
       runClean,
       runTest,
       publishArtifacts,
       setNextVersion,
       commitNextVersion,
-      releaseStepCommand("sonatypeReleaseAll"),
+      //releaseStepCommand("sonatypeReleaseAll"), disabled during testing
       pushChanges
     )
   else
