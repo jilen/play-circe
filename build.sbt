@@ -9,15 +9,18 @@ crossScalaVersions := Seq("2.11.12", "2.12.8")
 def playV = {
   sys.props.get("play.version").getOrElse("2.7.0")
 }
+val circeV = "0.11.1"
+
+//(2.7.x, 0.11.x) => 2711
+def nameSuffix = playV.take(3).replace(".", "") + circeV.drop(2).take(2)
 
 def scalaTestPlusV = {
   if(playV.startsWith("2.6")) "3.1.2" else "4.0.0"
 }
 
-name := s"play${playV.take(3).replace(".", "")}-circe"
+name := s"play-circe-${nameSuffix}"
 
 libraryDependencies ++= {
-  val circeV = "0.11.0"
   Seq(
     "io.circe" %% "circe-core" % circeV,
     "io.circe" %% "circe-parser" % circeV,
@@ -70,17 +73,28 @@ releaseCrossBuild := true
 
 releasePublishArtifactsAction := PgpKeys.publishSigned.value // Use publishSigned in publishArtifacts step
 
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  publishArtifacts,
-  setNextVersion,
-  commitNextVersion,
-  releaseStepCommand("sonatypeReleaseAll"),
-  pushChanges
-)
+releaseProcess := {
+
+  if(playV.startsWith("2.7"))
+    Seq[ReleaseStep](
+
+      runClean,
+      runTest,
+      publishArtifacts,
+      setNextVersion,
+      commitNextVersion,
+      releaseStepCommand("sonatypeReleaseAll"),
+      pushChanges
+    )
+  else
+    Seq[ReleaseStep](
+      checkSnapshotDependencies,
+      inquireVersions,
+      runClean,
+      runTest,
+      setReleaseVersion,
+      commitReleaseVersion,
+      tagRelease,
+      publishArtifacts
+    )
+}
