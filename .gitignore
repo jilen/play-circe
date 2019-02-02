@@ -20,3 +20,5 @@ project/plugins/project/
 .project
 sbt
 .projectile
+.bloop/
+.metals/
