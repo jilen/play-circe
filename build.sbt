@@ -4,19 +4,19 @@ organization := "com.dripower"
 
 name := "play-circe"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.12.9"
 
-crossScalaVersions := Seq("2.11.12", "2.12.8")
+crossScalaVersions := Seq("2.12.9", "2.13.0")
 
 libraryDependencies ++= {
-  val playV = "2.7.0"
-  val circeV = "0.11.1"
+  val playV = "2.7.3"
+  val circeV = "0.12.0-RC4"
   Seq(
     "io.circe" %% "circe-core" % circeV,
     "io.circe" %% "circe-parser" % circeV,
     "com.typesafe.play" %% "play" % playV % Provided,
     "io.circe" %% "circe-generic" % circeV % Test,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.0" % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
     "com.typesafe.play" %% "play-ws" % playV % Test
   )
 }
@@ -27,12 +27,9 @@ scalacOptions ++= Seq(
   "-feature",
   "-unchecked",
   "-Xlint",
-  "-Yno-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard",
-  "-Xfuture",
-  "-Ywarn-unused-import")
+  "-Ywarn-value-discard")
 
 // POM settings for Sonatype
 homepage := Some(url("https://github.com/jilen/play-circe"))
