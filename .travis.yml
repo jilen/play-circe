@@ -2,7 +2,7 @@ language: scala
 scala:
 - 2.11.12
 jdk:
-- oraclejdk8
+- openjdk8
 script:
 - sbt +test
 - sbt clean coverage test coverageReport coverageAggregate codacyCoverage

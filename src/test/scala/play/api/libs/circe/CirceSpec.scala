@@ -18,7 +18,7 @@ class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
   lazy val circeController = new CirceController(controllersComponent)
   lazy val wsClient = app.injector.instanceOf[WSClient]
   lazy val url = s"http://127.0.0.1:$port"
-  lazy val fooJsonString = circeController.customPrinter.pretty(Data.foo.asJson)
+  lazy val fooJsonString = circeController.customPrinter.print(Data.foo.asJson)
 
   def await[A](f: Future[A]) = Await.result(f, duration.Duration.Inf)
 

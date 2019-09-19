@@ -33,7 +33,7 @@ trait Circe extends Status {
       implicit codec: Codec,
       printer: Printer = defaultPrinter
   ): Writeable[Json] = {
-    Writeable(a => codec.encode(a.pretty(printer)))
+    Writeable(a => codec.encode(printer.print(a)))
   }
 
   object circe {
