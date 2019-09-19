@@ -6,7 +6,7 @@ name := "play-circe"
 
 scalaVersion := "2.12.10"
 
-crossScalaVersions := Seq("2.11.12", "2.12.10")
+crossScalaVersions := Seq("2.12.10")
 
 libraryDependencies ++= {
   val playV = "2.6.23"
