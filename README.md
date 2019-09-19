@@ -11,11 +11,11 @@ How to get it
 
 For play 2.6.x
 
-> libraryDependencies += "com.dripower" %% "play-circe" % "2611.0"
+> libraryDependencies += "com.dripower" %% "play-circe" % "2612.0"
 
 For play 2.7.x
 
-> libraryDependencies += "com.dripower" %% "play-circe" % "2711.0"
+> libraryDependencies += "com.dripower" %% "play-circe" % "2712.0"
 
 
 Usage
