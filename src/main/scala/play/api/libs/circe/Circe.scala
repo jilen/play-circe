@@ -3,7 +3,7 @@ package play.api.libs.circe
 import cats.syntax.all._
 import akka.stream.scaladsl.{ Flow, Sink}
 import akka.util.ByteString
-import io.circe._
+import io.circe.{Codec => _, _}
 import play.api.http._
 import play.api.libs.streams.Execution.Implicits.trampoline
 import play.api.libs.streams.Accumulator
@@ -29,7 +29,7 @@ trait Circe extends Status {
   }
 
   implicit def writableOf_Json(implicit codec: Codec, printer: Printer = defaultPrinter): Writeable[Json] = {
-    Writeable(a => codec.encode(a.pretty(printer)))
+    Writeable(a => codec.encode(printer.print(a)))
   }
 
   object circe {
