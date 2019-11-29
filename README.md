@@ -76,8 +76,8 @@ import io.circe.Printer
 implicit val customPrinter = Printer.spaces2.copy(dropNullValues = true)
 ```
 
-+ The `Circe` totally ignore the configured `HttpErrorHandler` and just use `DefaultHttpErrorHandler`.
-If this not what you want, simply make an trait to override `circeErrorHandler` like this
++ The `Circe` totally ignores the configured `HttpErrorHandler` and just uses `DefaultHttpErrorHandler`.
+If this not what you want, simply make a trait to override `circeErrorHandler` like this
 ```scala
 class MyController @Inject() (val errorHandler: HttpErrorHandler, val controllerComponents: ControllerComponents) extends BaseController with Circe {
   override def circeErrorHandler = errorHandler
