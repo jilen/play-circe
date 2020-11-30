@@ -1,46 +1,40 @@
-import ReleaseTransformations._
+import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
 
 organization := "com.dripower"
 
 name := "play-circe"
 
-scalaVersion := "2.12.10"
+scalaVersion := "2.13.4"
 
-crossScalaVersions := Seq("2.12.10", "2.13.0")
+crossScalaVersions := Seq("2.12.12", "2.13.4")
 
-libraryDependencies ++= {
-  val playV = "2.8.0"
-  val circeV = "0.12.3"
-  Seq(
-    "io.circe" %% "circe-core" % circeV,
-    "io.circe" %% "circe-parser" % circeV,
-    "com.typesafe.play" %% "play" % playV % Provided,
-    "io.circe" %% "circe-generic" % circeV % Test,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
-    "com.typesafe.play" %% "play-ws" % playV % Test
-  )
-}
+libraryDependencies ++= Seq(
+  "io.circe"               %% "circe-core"         % "0.13.0",
+  "io.circe"               %% "circe-parser"       % "0.13.0",
+  "com.typesafe.play"      %% "play"               % "2.8.5"  % Provided,
+  "io.circe"               %% "circe-generic"      % "0.13.0" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3"  % Test,
+  "com.typesafe.play"      %% "play-ws"            % "2.8.5"  % Test
+)
 
 scalacOptions ++= Seq(
   "-deprecation",
-  "-encoding", "UTF-8",
+  "-encoding",
+  "UTF-8",
   "-feature",
   "-unchecked",
   "-Xlint",
   "-Ywarn-dead-code",
   "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard")
+  "-Ywarn-value-discard"
+)
 
 // POM settings for Sonatype
 homepage := Some(url("https://github.com/jilen/play-circe"))
 
-scmInfo := Some(ScmInfo(url("https://github.com/jilen/play-circe"),
-  "git@github.com:jilen/play-circe.git"))
+scmInfo := Some(ScmInfo(url("https://github.com/jilen/play-circe"), "git@github.com:jilen/play-circe.git"))
 
-developers += Developer("jilen",
-  "jilen",
-  "jilen.zhang@gmail.com",
-  url("https://github.com/jilen"))
+developers += Developer("jilen", "jilen", "jilen.zhang@gmail.com", url("https://github.com/jilen"))
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
@@ -74,4 +68,21 @@ releaseProcess := Seq[ReleaseStep](
   releaseStepCommand("sonatypeReleaseAll"),
   pushChanges
 )
-Global / useGpg := false
+
+// commands aliases
+addCommandAlias("t", "test")
+addCommandAlias("to", "testOnly")
+addCommandAlias("tq", "testQuick")
+addCommandAlias("tsf", "testShowFailed")
+
+addCommandAlias("c", "compile")
+addCommandAlias("tc", "test:compile")
+
+addCommandAlias("f", "scalafmt")
+addCommandAlias("fc", "scalafmtCheck")
+addCommandAlias("tf", "test:scalafmt")
+addCommandAlias("tfc", "test:scalafmtCheck")
+addCommandAlias("fmt", ";f;tf")
+
+// All the needed tasks before pushing to the repository (compile, compile test, format check in prod and test)
+addCommandAlias("prep", ";c;tc;fc;tfc")

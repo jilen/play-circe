@@ -14,32 +14,31 @@ import scala.concurrent._
 
 class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
 
-  lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
-  lazy val circeController = new CirceController(controllersComponent)
-  lazy val wsClient = app.injector.instanceOf[WSClient]
-  lazy val url = s"http://127.0.0.1:$port"
-  lazy val fooJsonString = circeController.customPrinter.print(Data.foo.asJson)
+  private lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
+  private lazy val circeController      = new CirceController(controllersComponent)
+  private lazy val wsClient             = app.injector.instanceOf[WSClient]
+  private lazy val url                  = s"http://127.0.0.1:$port"
+  private lazy val fooJsonString        = circeController.customPrinter.print(Data.foo.asJson)
 
-  def await[A](f: Future[A]) = Await.result(f, duration.Duration.Inf)
-
+  private def await[A](f: Future[A]): A = Await.result(f, duration.Duration.Inf)
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
       .configure("play.allowGlobalApplication" -> "false")
       .router(Router.from {
-        case GET(p"/get") => circeController.get
-        case POST(p"/post") => circeController.post
-        case POST(p"/postJson") => circeController.postJson
-        case POST(p"/postTolerant") => circeController.postTolerant
+        case GET(p"/get")               => circeController.get
+        case POST(p"/post")             => circeController.post
+        case POST(p"/postJson")         => circeController.postJson
+        case POST(p"/postTolerant")     => circeController.postTolerant
         case POST(p"/postTolerantJson") => circeController.postTolerantJson
-        case _ => new Handler{}
-      }).build()
+        case _                          => new Handler {}
+      })
+      .build()
 
-
-  "Circe trait"  must {
+  "Circe trait" must {
     "server json" in {
       val resp = await(wsClient.url(url + "/get").get())
-      resp.headers("Content-Type")(0) mustEqual("application/json")
+      resp.headers("Content-Type").head mustEqual "application/json"
       resp.body mustEqual fooJsonString
     }
     "parse json as object" in {
