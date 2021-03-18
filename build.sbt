@@ -1,21 +1,25 @@
-import sbtrelease.ReleasePlugin.autoImport.ReleaseTransformations._
+import ReleaseTransformations._
 
 organization := "com.dripower"
 
 name := "play-circe"
 
-scalaVersion := "2.13.4"
+scalaVersion := "2.13.5"
 
-crossScalaVersions := Seq("2.12.12", "2.13.4")
+crossScalaVersions := Seq("2.12.10", "2.13.5")
 
-libraryDependencies ++= Seq(
-  "io.circe"               %% "circe-core"         % "0.13.0",
-  "io.circe"               %% "circe-parser"       % "0.13.0",
-  "com.typesafe.play"      %% "play"               % "2.8.5"  % Provided,
-  "io.circe"               %% "circe-generic"      % "0.13.0" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3"  % Test,
-  "com.typesafe.play"      %% "play-ws"            % "2.8.5"  % Test
-)
+libraryDependencies ++= {
+  val playV  = "2.7.3"
+  val circeV = "0.12.1"
+  Seq(
+    "io.circe"               %% "circe-core"         % circeV,
+    "io.circe"               %% "circe-parser"       % circeV,
+    "com.typesafe.play"      %% "play"               % playV   % Provided,
+    "io.circe"               %% "circe-generic"      % circeV  % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
+    "com.typesafe.play"      %% "play-ws"            % playV   % Test
+  )
+}
 
 scalacOptions ++= Seq(
   "-deprecation",
@@ -68,8 +72,9 @@ releaseProcess := Seq[ReleaseStep](
   releaseStepCommand("sonatypeReleaseAll"),
   pushChanges
 )
+Global / useGpg := false
 
-// commands aliases
+// COMMANDS ALIASES
 addCommandAlias("t", "test")
 addCommandAlias("to", "testOnly")
 addCommandAlias("tq", "testQuick")
@@ -78,11 +83,12 @@ addCommandAlias("tsf", "testShowFailed")
 addCommandAlias("c", "compile")
 addCommandAlias("tc", "test:compile")
 
-addCommandAlias("f", "scalafmt")
-addCommandAlias("fc", "scalafmtCheck")
-addCommandAlias("tf", "test:scalafmt")
-addCommandAlias("tfc", "test:scalafmtCheck")
-addCommandAlias("fmt", ";f;tf")
+addCommandAlias("f", "scalafmt")             // Format production files according to ScalaFmt
+addCommandAlias("fc", "scalafmtCheck")       // Check if production files are formatted according to ScalaFmt
+addCommandAlias("tf", "test:scalafmt")       // Format test files according to ScalaFmt
+addCommandAlias("tfc", "test:scalafmtCheck") // Check if test files are formatted according to ScalaFmt
+addCommandAlias("fmt", ";f;tf")              // Format all files according to ScalaFmt
 
 // All the needed tasks before pushing to the repository (compile, compile test, format check in prod and test)
-addCommandAlias("prep", ";c;tc;fc;tfc")
+addCommandAlias("prep", ";c;tc;test")
+addCommandAlias("build", ";c;tc")
