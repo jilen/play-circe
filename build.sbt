@@ -10,7 +10,7 @@ crossScalaVersions := Seq("2.12.10", "2.13.5")
 
 libraryDependencies ++= {
   val playV  = "2.8.7"
-  val circeV = "0.12.3"
+  val circeV = "0.13.0"
   Seq(
     "io.circe"               %% "circe-core"         % circeV,
     "io.circe"               %% "circe-parser"       % circeV,
