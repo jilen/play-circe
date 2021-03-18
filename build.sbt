@@ -66,10 +66,10 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-//   publishArtifacts,
+  publishArtifacts,
   setNextVersion,
   commitNextVersion,
-//   releaseStepCommand("sonatypeReleaseAll"),
+  releaseStepCommand("sonatypeReleaseAll"),
   pushChanges
 )
 Global / useGpg := false
