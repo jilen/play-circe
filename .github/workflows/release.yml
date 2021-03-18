@@ -32,7 +32,7 @@ jobs:
           sbt "release with-defaults"
 
       - name: Extract latest version
-        run: echo "VERSION=`echo $(git describe --tags --abbrev=0)`" >> $GITHUB_ENV
+        run: echo "VERSION=`echo $(git describe --tags $(git rev-list --tags --max-count=1))`" >> $GITHUB_ENV
 
       - name: Publish release notes
         uses: release-drafter/release-drafter@v5
