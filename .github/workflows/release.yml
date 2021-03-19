@@ -1,0 +1,46 @@
+name: release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up JDK 1.8
+        uses: actions/setup-java@v1
+        with:
+          java-version: 1.8
+
+      - name: Cache sbt
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.coursier
+            ~/.cache/coursier
+          key: sbt-cache-${{ runner.os }}-${{ matrix.target-platform }}-${{ hashFiles('project/build.properties') }}
+
+      - name: Release
+        run: |
+          git config user.name github-actions
+          git config user.email github-actions@github.com
+          sbt "release with-defaults"
+
+      - name: Extract latest version
+        run: echo "VERSION=`echo $(git describe --tags $(git rev-list --tags --max-count=1))`" >> $GITHUB_ENV
+
+      - name: Publish release notes
+        uses: release-drafter/release-drafter@v5
+        with:
+          config-name: release-drafter.yml
+          publish: true
+          name: "${{ env.VERSION }}"
+          tag: "${{ env.VERSION }}"
+          version: "${{ env.VERSION }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,19 +1,18 @@
 package play.api.libs.circe
 
 import akka.actor._
-import akka.stream._
 import io.circe.Printer
 import io.circe.generic.auto._
 import io.circe.syntax._
 import play.api.mvc._
 
-class CirceController(val controllerComponents: ControllerComponents)
-    extends BaseController
-    with Circe {
+import scala.concurrent.ExecutionContextExecutor
 
-  implicit val customPrinter = Printer.spaces2.copy(dropNullValues = true)
+class CirceController(val controllerComponents: ControllerComponents) extends BaseController with Circe {
 
-  def get = Action {
+  implicit val customPrinter: Printer = Printer.spaces2.copy(dropNullValues = true)
+
+  def get: Action[AnyContent] = Action {
     Ok(Data.foo.asJson)
   }
 
@@ -39,7 +38,6 @@ class CirceController(val controllerComponents: ControllerComponents)
 }
 
 object CirceController {
-  implicit val actorSystem = ActorSystem()
-  implicit val ec = actorSystem.dispatcher
-  implicit val materializer = ActorMaterializer()
+  implicit val actorSystem: ActorSystem     = ActorSystem()
+  implicit val ec: ExecutionContextExecutor = actorSystem.dispatcher
 }

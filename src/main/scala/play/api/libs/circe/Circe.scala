@@ -1,54 +1,46 @@
 package play.api.libs.circe
 
-import cats.syntax.all._
 import akka.stream.scaladsl.{Flow, Sink}
 import akka.util.ByteString
+import cats.syntax.all._
 import io.circe.{Codec => _, _}
+import play.api.Logging
 import play.api.http._
-import play.api.libs.streams.Execution.Implicits.trampoline
 import play.api.libs.streams.Accumulator
-import play.api.Logger
+import play.api.libs.streams.Execution.Implicits.trampoline
 import play.api.mvc._
+
 import scala.concurrent.Future
-import scala.util.control.NonFatal
 import scala.util.Try
+import scala.util.control.NonFatal
 
-trait Circe extends Status {
-
-  private val defaultPrinter = Printer.noSpaces
-  protected def circeErrorHandler: HttpErrorHandler =
-    new DefaultHttpErrorHandler
+trait Circe extends Status with Logging {
 
   def parse: PlayBodyParsers
 
-  protected def onCirceError(e: Error): Result = {
-    Results.BadRequest(e.show)
-  }
+  private val defaultPrinter = Printer.noSpaces
 
-  implicit val contentTypeOf_Json: ContentTypeOf[Json] = {
-    ContentTypeOf(Some(ContentTypes.JSON))
-  }
+  protected def circeErrorHandler: HttpErrorHandler = new DefaultHttpErrorHandler
 
-  implicit def writableOf_Json(
-      implicit codec: Codec,
+  protected def onCirceError(e: Error): Result = Results.BadRequest(e.show)
+
+  implicit val contentTypeOf_Json: ContentTypeOf[Json] = ContentTypeOf(Some(ContentTypes.JSON))
+
+  implicit def writableOf_Json(implicit
+      codec: Codec,
       printer: Printer = defaultPrinter
-  ): Writeable[Json] = {
-    Writeable(a => codec.encode(printer.print(a)))
-  }
+  ): Writeable[Json] = Writeable(a => codec.encode(printer.print(a)))
 
   object circe {
-
-    val logger = Logger(classOf[Circe])
 
     def json[T: Decoder]: BodyParser[T] = json.validate(decodeJson[T])
 
     def json: BodyParser[Json] = json(parse.DefaultMaxTextLength)
 
     def json(maxLength: Long): BodyParser[Json] = parse.when(
-      _.contentType.exists(
-        m =>
-          m.equalsIgnoreCase("text/json") || m
-            .equalsIgnoreCase("application/json")
+      _.contentType.exists(m =>
+        m.equalsIgnoreCase("text/json") || m
+          .equalsIgnoreCase("application/json")
       ),
       tolerantJson(maxLength),
       createBadResult(
@@ -57,18 +49,14 @@ trait Circe extends Status {
       )
     )
 
-    def tolerantJson[T: Decoder]: BodyParser[T] =
-      tolerantJson.validate(decodeJson[T])
+    def tolerantJson[T: Decoder]: BodyParser[T] = tolerantJson.validate(decodeJson[T])
 
-    def tolerantJson: BodyParser[Json] =
-      tolerantJson(parse.DefaultMaxTextLength)
+    def tolerantJson: BodyParser[Json] = tolerantJson(parse.DefaultMaxTextLength)
 
     def tolerantJson(maxLength: Long): BodyParser[Json] = {
-      tolerantBodyParser[Json]("json", maxLength, "Invalid Json") {
-        (request, bytes) =>
-          val bodyString =
-            new String(bytes.toArray[Byte], detectCharset(request))
-          parser.parse(bodyString).leftMap(onCirceError)
+      tolerantBodyParser[Json]("json", maxLength, "Invalid Json") { (request, bytes) =>
+        val bodyString = new String(bytes.toArray[Byte], detectCharset(request))
+        parser.parse(bodyString).leftMap(onCirceError)
       }
     }
 
@@ -103,35 +91,27 @@ trait Circe extends Status {
     ): BodyParser[A] = {
       BodyParser(name + ", maxLength=" + maxLength) { request =>
         def parseBody(bytes: ByteString): Future[Either[Result, A]] = {
-          Future.fromTry(Try(parser(request, bytes))).recoverWith {
-            case NonFatal(e) =>
-              logger.debug(errorMessage, e)
-              createBadResult(errorMessage + ": " + e.getMessage)(request)
-                .map(Left(_))
+          Future.fromTry(Try(parser(request, bytes))).recoverWith { case NonFatal(e) =>
+            logger.debug(errorMessage, e)
+            createBadResult(errorMessage + ": " + e.getMessage)(request)
+              .map(Left(_))
           }
         }
 
         Accumulator.strict[ByteString, Either[Result, A]](
           // If the body was strict
           {
-            case Some(bytes) if bytes.size <= maxLength =>
-              parseBody(bytes)
-            case None =>
-              parseBody(ByteString.empty)
-            case _ =>
-              createBadResult(
-                "Request Entity Too Large",
-                REQUEST_ENTITY_TOO_LARGE
-              )(request).map(Left.apply)
+            case Some(bytes) if bytes.size <= maxLength => parseBody(bytes)
+            case None                                   => parseBody(ByteString.empty)
+            case _                                      =>
+              createBadResult("Request Entity Too Large", REQUEST_ENTITY_TOO_LARGE)(request).map(Left.apply)
           },
           // Otherwise, use an enforce max length accumulator on a folding sink
           enforceMaxLength(
             request,
             maxLength,
             Accumulator(
-              Sink.fold[ByteString, ByteString](ByteString.empty)(
-                (state, bs) => state ++ bs
-              )
+              Sink.fold[ByteString, ByteString](ByteString.empty)((state, bs) => state ++ bs)
             ).mapFuture(parseBody)
           ).toSink
         )
@@ -143,21 +123,15 @@ trait Circe extends Status {
         maxLength: Long,
         accumulator: Accumulator[ByteString, Either[Result, A]]
     ): Accumulator[ByteString, Either[Result, A]] = {
-      val takeUpToFlow =
-        Flow.fromGraph(new BodyParsers.TakeUpTo(maxLength.toLong))
-      Accumulator(takeUpToFlow.toMat(accumulator.toSink) {
-        (statusFuture, resultFuture) =>
-          statusFuture.flatMap {
-            case MaxSizeExceeded(_) =>
-              val badResult = createBadResult(
-                "Request Entity Too Large",
-                REQUEST_ENTITY_TOO_LARGE
-              )(request)
-              badResult.map(Left(_))
-
-            case MaxSizeNotExceeded =>
-              resultFuture
-          }
+      val takeUpToFlow = Flow.fromGraph(new BodyParsers.TakeUpTo(maxLength.toLong))
+      Accumulator(takeUpToFlow.toMat(accumulator.toSink) { (statusFuture, resultFuture) =>
+        statusFuture.flatMap {
+          case MaxSizeExceeded(_) =>
+            val badResult = createBadResult("Request Entity Too Large", REQUEST_ENTITY_TOO_LARGE)(request)
+            badResult.map(Left(_))
+          case MaxSizeNotExceeded =>
+            resultFuture
+        }
       })
     }
   }
