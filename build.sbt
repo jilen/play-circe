@@ -16,7 +16,7 @@ libraryDependencies ++= {
     "io.circe"               %% "circe-parser"       % circeV,
     "com.typesafe.play"      %% "play"               % playV   % Provided,
     "io.circe"               %% "circe-generic"      % circeV  % Test,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "4.0.3" % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
     "com.typesafe.play"      %% "play-ws"            % playV   % Test
   )
 }
