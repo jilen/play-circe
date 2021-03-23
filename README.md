@@ -1,8 +1,7 @@
 [Circe](https://github.com/travisbrown/circe) support for [playframework](https://playframework.com/)
 =====================================================================================================
-[![Build Status](https://travis-ci.org/jilen/play-circe.svg?branch=master)](https://travis-ci.org/jilen/play-circe)
-[![Codacy Badge](https://api.codacy.com/project/badge/grade/c9fcd36a885546f8b9d2a427853e5353)](https://www.codacy.com/app/jilen-zhang/play-circe)
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/c9fcd36a885546f8b9d2a427853e5353)](https://www.codacy.com/app/jilen-zhang/play-circe?utm_source=github.com&utm_medium=referral&utm_content=jilen/play-circe&utm_campaign=Badge_Coverage)
+[![Build](https://github.com/jilen/play-circe/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/jilen/play-circe/actions/workflows/build.yml)
+[![codecov](https://codecov.io/gh/jilen/play-circe/branch/master/graph/badge.svg?token=SdVZrdCrzT)](https://codecov.io/gh/jilen/play-circe)
 
 How to get it
 -------------

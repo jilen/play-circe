@@ -3,7 +3,7 @@ name: build
 on:
   pull_request:
     branches: [ master ]
-  workflow_dispatch:  
+  workflow_dispatch:
 
 jobs:
   build:
@@ -32,12 +32,10 @@ jobs:
         run: sbt build
 
       - name: Tests
-        run: sbt test
+        run: sbt +test
 
-      - name: Report Tests
-        uses: EnricoMi/publish-unit-test-result-action@v1
-        if: always()
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          files: ./**/*Spec.xml
+      - name: Coverage
+        run: sbt clean coverage test coverageReport
 
+      - name: Upload codecov
+        uses: codecov/codecov-action@v1
