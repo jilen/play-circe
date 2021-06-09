@@ -12,7 +12,7 @@ import play.api.mvc._
 import play.api.inject.guice._
 import scala.concurrent._
 
-class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
+class CirceSpec extends PlaySpec with GuiceOneServerPerTest {
 
   private lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
   private lazy val circeController      = new CirceController(controllersComponent)

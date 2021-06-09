@@ -12,12 +12,13 @@ libraryDependencies ++= {
   val playV  = "2.8.8"
   val circeV = "0.13.0"
   Seq(
-    "io.circe"               %% "circe-core"         % circeV,
-    "io.circe"               %% "circe-parser"       % circeV,
-    "com.typesafe.play"      %% "play"               % playV   % Provided,
-    "io.circe"               %% "circe-generic"      % circeV  % Test,
-    "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test,
-    "com.typesafe.play"      %% "play-ws"            % playV   % Test
+    "io.circe"               %% "circe-core"            % circeV,
+    "io.circe"               %% "circe-parser"          % circeV,
+    "com.typesafe.play"      %% "play"                  % playV   % Provided,
+    "io.circe"               %% "circe-generic"         % circeV  % Test,
+    "org.scalatestplus.play" %% "scalatestplus-play"    % "5.1.0" % Test,
+    "com.typesafe.play"      %% "play-ws"               % playV   % Test,
+    "com.typesafe.play"      %% "play-akka-http-server" % playV   % Test
   )
 }
 
