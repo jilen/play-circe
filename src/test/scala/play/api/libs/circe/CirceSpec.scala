@@ -6,13 +6,11 @@ import org.scalatestplus.play._
 import org.scalatestplus.play.guice._
 import play.api._
 import play.api.libs.ws.WSClient
-import play.api.routing._
-import play.api.routing.sird._
 import play.api.mvc._
 import play.api.inject.guice._
 import scala.concurrent._
 
-class CirceSpec extends PlaySpec with GuiceOneServerPerTest {
+class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
 
   private lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
   private lazy val circeController      = new CirceController(controllersComponent)
@@ -24,14 +22,12 @@ class CirceSpec extends PlaySpec with GuiceOneServerPerTest {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
-      .configure("play.allowGlobalApplication" -> "false")
-      .router(Router.from {
-        case GET(p"/get")               => circeController.get
-        case POST(p"/post")             => circeController.post
-        case POST(p"/postJson")         => circeController.postJson
-        case POST(p"/postTolerant")     => circeController.postTolerant
-        case POST(p"/postTolerantJson") => circeController.postTolerantJson
-        case _                          => new Handler {}
+      .appRoutes( app => {
+        case ("GET", "/get")               => circeController.get
+        case ("POST", "/post")             => circeController.post
+        case ("POST", "/postJson")         => circeController.postJson
+        case ("POST", "/postTolerant")     => circeController.postTolerant
+        case ("POST", "/postTolerantJson") => circeController.postTolerantJson
       })
       .build()
 
