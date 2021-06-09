@@ -14,7 +14,7 @@ class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
 
   private lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
   private lazy val circeController      = new CirceController(controllersComponent)
-  private lazy val wsClient             = app.injector.instanceOf[WSClient]
+  private def wsClient             = app.injector.instanceOf[WSClient]
   private lazy val url                  = s"http://127.0.0.1:$port"
   private lazy val fooJsonString        = circeController.customPrinter.print(Data.foo.asJson)
 
