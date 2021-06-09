@@ -18,7 +18,7 @@ For play 2.7.x
 
 For play 2.8.x
 
-> libraryDependencies += "com.dripower" %% "play-circe" % "2812.1"
+> libraryDependencies += "com.dripower" %% "play-circe" % "2813.0"
 
 
 Usage
@@ -86,11 +86,3 @@ class MyController @Inject() (val errorHandler: HttpErrorHandler, val controller
   override def circeErrorHandler = errorHandler
 }
 ```
-
-# Pre-push Git hook
-
-There's one Git hook included. It's inside the `hooks` folder and it will run the `prep` SBT task before pushing to any remote.
-
-This `prep` task is intended to run all the checks you consider before pushing. At this very moment, it try to compile and check the code style rules with ScalaFmt.
- 
-In order to install this hook, just `cd hooks` and run `./install-hooks.sh`.
