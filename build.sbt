@@ -1,5 +1,3 @@
-import ReleaseTransformations._
-
 organization := "com.dripower"
 
 name := "play-circe"
@@ -42,36 +40,3 @@ scmInfo := Some(ScmInfo(url("https://github.com/jilen/play-circe"), "git@github.
 developers += Developer("jilen", "jilen", "jilen.zhang@gmail.com", url("https://github.com/jilen"))
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
-
-pomIncludeRepository := (_ => false)
-
-publishMavenStyle := true
-
-// Add sonatype repository settings
-publishTo := Some(
-  if (isSnapshot.value)
-    Opts.resolver.sonatypeSnapshots
-  else
-    Opts.resolver.sonatypeStaging
-)
-
-// release plugin
-
-releaseCrossBuild := true
-
-releasePublishArtifactsAction := PgpKeys.publishSigned.value // Use publishSigned in publishArtifacts step
-
-releaseProcess := Seq[ReleaseStep](
-  checkSnapshotDependencies,
-  inquireVersions,
-  runClean,
-  runTest,
-  setReleaseVersion,
-  commitReleaseVersion,
-  tagRelease,
-  releaseStepCommandAndRemaining("+publishSigned"),
-  releaseStepCommand("sonatypeBundleRelease"),
-  setNextVersion,
-  commitNextVersion,
-  pushChanges
-)
