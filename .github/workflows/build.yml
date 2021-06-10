@@ -28,9 +28,6 @@ jobs:
             ~/.cache/coursier
           key: sbt-cache-${{ runner.os }}-${{ matrix.target-platform }}-${{ hashFiles('project/build.properties') }}
 
-      - name: build
-        run: sbt build
-
       - name: Tests
         run: sbt +test
 
