@@ -30,6 +30,11 @@ jobs:
           git config user.name github-actions
           git config user.email github-actions@github.com
           sbt "release with-defaults"
+          env:
+            PGP_PASSPHRASE: "${{secrets.PGP_PASSPHRASE}}"
+            PGP_SECRET: "${{secrets.PGP_SECRET}}"
+            SONATYPE_USERNAME: ${{secrets.SONATYPE_USERNAME}}
+            SONATYPE_PASSWORD: ${{secrets.SONATYPE_PASSWORD}}
 
       - name: Extract latest version
         run: echo "VERSION=`echo $(git describe --tags $(git rev-list --tags --max-count=1))`" >> $GITHUB_ENV
