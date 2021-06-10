@@ -45,6 +45,8 @@ licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
 pomIncludeRepository := (_ => false)
 
+publishMavenStyle := true
+
 // Add sonatype repository settings
 publishTo := Some(
   if (isSnapshot.value)
@@ -67,29 +69,9 @@ releaseProcess := Seq[ReleaseStep](
   setReleaseVersion,
   commitReleaseVersion,
   tagRelease,
-  publishArtifacts,
+  releaseStepCommandAndRemaining("+publishSigned"),
+  releaseStepCommand("sonatypeBundleRelease"),
   setNextVersion,
   commitNextVersion,
-  releaseStepCommand("sonatypeReleaseAll"),
   pushChanges
 )
-Global / useGpg := false
-
-// COMMANDS ALIASES
-addCommandAlias("t", "test")
-addCommandAlias("to", "testOnly")
-addCommandAlias("tq", "testQuick")
-addCommandAlias("tsf", "testShowFailed")
-
-addCommandAlias("c", "compile")
-addCommandAlias("tc", "test:compile")
-
-addCommandAlias("f", "scalafmt")             // Format production files according to ScalaFmt
-addCommandAlias("fc", "scalafmtCheck")       // Check if production files are formatted according to ScalaFmt
-addCommandAlias("tf", "test:scalafmt")       // Format test files according to ScalaFmt
-addCommandAlias("tfc", "test:scalafmtCheck") // Check if test files are formatted according to ScalaFmt
-addCommandAlias("fmt", ";f;tf")              // Format all files according to ScalaFmt
-
-// All the needed tasks before pushing to the repository (compile, compile test, format check in prod and test)
-addCommandAlias("prep", ";c;tc;test")
-addCommandAlias("build", ";c;tc")
