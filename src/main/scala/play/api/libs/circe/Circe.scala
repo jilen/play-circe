@@ -4,7 +4,7 @@ import akka.stream.scaladsl.{Flow, Sink}
 import akka.util.ByteString
 import cats.syntax.all._
 import io.circe.{Codec => _, _}
-import play.api.Logging
+import org.slf4j._
 import play.api.http._
 import play.api.libs.streams.Accumulator
 import play.api.libs.streams.Execution.Implicits.trampoline
@@ -14,7 +14,7 @@ import scala.concurrent.Future
 import scala.util.Try
 import scala.util.control.NonFatal
 
-trait Circe extends Status with Logging {
+trait Circe extends Status {
 
   def parse: PlayBodyParsers
 
@@ -23,6 +23,8 @@ trait Circe extends Status with Logging {
   protected def circeErrorHandler: HttpErrorHandler = new DefaultHttpErrorHandler
 
   protected def onCirceError(e: Error): Result = Results.BadRequest(e.show)
+
+  private final val logger = LoggerFactory.getLogger(classOf[Circe])
 
   implicit val contentTypeOf_Json: ContentTypeOf[Json] = ContentTypeOf(Some(ContentTypes.JSON))
 
@@ -70,7 +72,9 @@ trait Circe extends Status with Logging {
 
     private def decodeJson[T: Decoder](json: Json) = {
       json.as[T].leftMap { ex =>
-        logger.debug(s"Cannot decode json $json", ex)
+        if (logger.isDebugEnabled) {
+          logger.debug(s"Cannot decode json $json", ex)
+        }
         onCirceError(ex)
       }
     }
