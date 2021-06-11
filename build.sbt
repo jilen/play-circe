@@ -1,3 +1,5 @@
+import ReleaseTransformations._
+
 organization := "com.dripower"
 
 name := "play-circe"
@@ -40,3 +42,17 @@ scmInfo := Some(ScmInfo(url("https://github.com/jilen/play-circe"), "git@github.
 developers += Developer("jilen", "jilen", "jilen.zhang@gmail.com", url("https://github.com/jilen"))
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
+
+
+
+
+releaseProcess := Seq[ReleaseStep](
+  checkSnapshotDependencies,
+  inquireVersions,
+  setReleaseVersion,
+  commitReleaseVersion,
+  tagRelease,
+  setNextVersion,
+  commitNextVersion,
+  pushChanges
+)
