@@ -13,8 +13,6 @@ jobs:
       - name: Execute Scala Steward
         uses: scala-steward-org/scala-steward-action@v2
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.PAT }}
           author-email: scala-steward@users.noreply.github.com
           author-name: Scala Steward
-
-
