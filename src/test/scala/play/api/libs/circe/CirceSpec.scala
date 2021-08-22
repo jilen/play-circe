@@ -14,7 +14,7 @@ class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
 
   private lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
   private lazy val circeController      = new CirceController(controllersComponent)
-  private def wsClient             = app.injector.instanceOf[WSClient]
+  private def wsClient                  = app.injector.instanceOf[WSClient]
   private lazy val url                  = s"http://127.0.0.1:$port"
   private lazy val fooJsonString        = circeController.customPrinter.print(Data.foo.asJson)
 
@@ -22,7 +22,7 @@ class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
 
   override def fakeApplication(): Application =
     new GuiceApplicationBuilder()
-      .appRoutes( app => {
+      .appRoutes(app => {
         case ("GET", "/get")               => circeController.get
         case ("POST", "/post")             => circeController.post
         case ("POST", "/postJson")         => circeController.postJson

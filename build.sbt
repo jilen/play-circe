@@ -43,9 +43,6 @@ developers += Developer("jilen", "jilen", "jilen.zhang@gmail.com", url("https://
 
 licenses += ("Apache-2.0", url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-
-
-
 releaseProcess := Seq[ReleaseStep](
   checkSnapshotDependencies,
   inquireVersions,
