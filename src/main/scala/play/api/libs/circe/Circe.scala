@@ -62,7 +62,7 @@ trait Circe extends Status {
       }
     }
 
-    private def detectCharset(request: RequestHeader) = {
+    private def detectCharset(request: RequestHeader)   = {
       val CharsetPattern = "(?i)\\bcharset=\\s*\"?([^\\s;\"]*)".r
       request.headers.get("Content-Type") match {
         case Some(CharsetPattern(c)) => c
@@ -70,7 +70,7 @@ trait Circe extends Status {
       }
     }
 
-    private def decodeJson[T: Decoder](json: Json) = {
+    private def decodeJson[T: Decoder](json: Json)      = {
       json.as[T].leftMap { ex =>
         if (logger.isDebugEnabled) {
           logger.debug(s"Cannot decode json $json", ex)
