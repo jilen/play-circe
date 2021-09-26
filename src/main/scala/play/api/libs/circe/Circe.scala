@@ -107,7 +107,7 @@ trait Circe extends Status {
           {
             case Some(bytes) if bytes.size <= maxLength => parseBody(bytes)
             case None                                   => parseBody(ByteString.empty)
-            case _                                      =>
+            case _ =>
               createBadResult("Request Entity Too Large", REQUEST_ENTITY_TOO_LARGE)(request).map(Left.apply)
           },
           // Otherwise, use an enforce max length accumulator on a folding sink
