@@ -4,9 +4,9 @@ organization := "com.dripower"
 
 name := "play-circe"
 
-scalaVersion := "2.13.7"
+scalaVersion := "2.13.8"
 
-crossScalaVersions := Seq("2.12.15", "2.13.7")
+crossScalaVersions := Seq("2.12.15", "2.13.8")
 
 libraryDependencies ++= {
   val playV  = "2.8.13"
