@@ -1,7 +1,7 @@
 import ReleaseTransformations._
 
 organization := "com.dripower"
-name := "play-circe"
+name         := "play-circe"
 scalaVersion := "2.13.10"
 
 crossScalaVersions := Seq("2.12.17", "2.13.10", "3.3.0")
@@ -9,20 +9,18 @@ crossScalaVersions := Seq("2.12.17", "2.13.10", "3.3.0")
 val playV  = "2.8.19"
 val circeV = "0.14.5"
 
-val circeDeps = Seq(
-  "io.circe"               %% "circe-core"            % circeV,
-  "io.circe"               %% "circe-parser"          % circeV,
-  "io.circe"               %% "circe-generic"         % circeV  % Test
+val crossDeps = Seq(
+  "io.circe" %% "circe-core"    % circeV,
+  "io.circe" %% "circe-parser"  % circeV,
+  "io.circe" %% "circe-generic" % circeV % Test
 )
 
-val playDeps = Seq(
-  "com.typesafe.play"      %% "play"                  % playV   % Provided,
-  "org.scalatestplus.play" %% "scalatestplus-play"    % "5.1.0" % Test,
-  "com.typesafe.play"      %% "play-ws"               % playV   % Test,
-  "com.typesafe.play"      %% "play-akka-http-server" % playV   % Test
+val scala2Deps = Seq(
+  "com.typesafe.play" %% "play" % playV % Provided,
+  "com.typesafe.play" %% "play-guice" % playV % Provided
 ).map(_.cross(CrossVersion.for3Use2_13))
 
-libraryDependencies ++= (circeDeps ++ playDeps)
+libraryDependencies ++= (crossDeps ++ scala2Deps)
 
 scalacOptions := {
   Seq(
@@ -30,11 +28,7 @@ scalacOptions := {
     "-encoding",
     "UTF-8",
     "-feature",
-    "-unchecked",
-    "-Xlint",
-    "-Ywarn-dead-code",
-    "-Ywarn-numeric-widen",
-    "-Ywarn-value-discard"
+    "-Xlint"
   )
 }
 

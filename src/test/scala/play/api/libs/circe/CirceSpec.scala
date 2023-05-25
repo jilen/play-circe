@@ -1,21 +1,15 @@
 package play.api.libs.circe
 
-import io.circe.generic.auto._
 import io.circe.syntax._
-import org.scalatestplus.play._
-import org.scalatestplus.play.guice._
 import play.api._
-import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.inject.guice._
 import scala.concurrent._
 
-class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
-
+class CirceSpec {
+  val app = GuiceApplicationBuilder().build()
   private lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
   private lazy val circeController      = new CirceController(controllersComponent)
-  private def wsClient                  = app.injector.instanceOf[WSClient]
-  private lazy val url                  = s"http://127.0.0.1:$port"
   private lazy val fooJsonString        = circeController.customPrinter.print(Data.foo.asJson)
 
   private def await[A](f: Future[A]): A = Await.result(f, duration.Duration.Inf)

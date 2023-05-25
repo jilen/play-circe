@@ -1,8 +1,7 @@
 package play.api.libs.circe
 
 import akka.actor._
-import io.circe.Printer
-import io.circe.generic.auto._
+import io.circe.{Printer, Json}
 import io.circe.syntax._
 import play.api.mvc._
 
@@ -16,22 +15,22 @@ class CirceController(val controllerComponents: ControllerComponents) extends Ba
     Ok(Data.foo.asJson)
   }
 
-  def post = Action(circe.json[Foo]) { implicit request =>
+  def post = Action(circe.json[Foo]) { (request: Request[Foo]) =>
     val isEqual = request.body == Data.foo
     Ok(isEqual.toString)
   }
 
-  def postJson = Action(circe.json) { implicit request =>
+  def postJson = Action(circe.json) { (request: Request[Json]) =>
     val isEqual = request.body == Data.foo.asJson
     Ok(isEqual.toString)
   }
 
-  def postTolerant = Action(circe.tolerantJson[Foo]) { implicit request =>
+  def postTolerant = Action(circe.tolerantJson[Foo]) { (request: Request[Foo]) =>
     val isEqual = request.body == Data.foo
     Ok(isEqual.toString)
   }
 
-  def postTolerantJson = Action(circe.tolerantJson) { implicit request =>
+  def postTolerantJson = Action(circe.tolerantJson) { (request: Request[Json]) =>
     val isEqual = request.body == Data.foo.asJson
     Ok(isEqual.toString)
   }
