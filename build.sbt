@@ -26,7 +26,6 @@ libraryDependencies ++= (circeDeps ++ playDeps)
 
 scalacOptions := {
   Seq(
-    "-release:11",
     "-deprecation",
     "-encoding",
     "UTF-8",
