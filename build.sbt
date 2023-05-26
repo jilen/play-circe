@@ -10,26 +10,33 @@ val playV  = "2.8.19"
 val circeV = "0.14.5"
 
 val crossDeps = Seq(
-  "io.circe" %% "circe-core"    % circeV,
-  "io.circe" %% "circe-parser"  % circeV,
-  "io.circe" %% "circe-generic" % circeV % Test
+  "io.circe"      %% "circe-core"    % circeV,
+  "io.circe"      %% "circe-parser"  % circeV,
+  "io.circe"      %% "circe-generic" % circeV     % Test,
+  "org.scalameta" %% "munit"         % "1.0.0-M7" % Test,
+  "org.hamcrest"   % "hamcrest"      % "2.2"      % Test
 )
 
 val scala2Deps = Seq(
-  "com.typesafe.play" %% "play" % playV % Provided,
+  "com.typesafe.play" %% "play"       % playV % Provided,
   "com.typesafe.play" %% "play-guice" % playV % Provided
 ).map(_.cross(CrossVersion.for3Use2_13))
 
 libraryDependencies ++= (crossDeps ++ scala2Deps)
 
 scalacOptions := {
-  Seq(
+  val base = Seq(
+    "-release:11",
     "-deprecation",
     "-encoding",
     "UTF-8",
-    "-feature",
-    "-Xlint"
+    "-feature"
   )
+  if (scalaVersion.value.startsWith("3.")) {
+    base
+  } else {
+    base ++ Seq("-Xlint")
+  }
 }
 
 // POM settings for Sonatype
