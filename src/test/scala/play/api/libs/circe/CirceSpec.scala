@@ -1,87 +1,106 @@
 package play.api.libs.circe
 
-import io.circe.generic.auto._
+import akka.actor.ActorSystem
+import akka.stream.Materializer
+import akka.stream.scaladsl.Source
+import akka.util.ByteString
 import io.circe.syntax._
-import org.scalatestplus.play._
-import org.scalatestplus.play.guice._
-import play.api._
-import play.api.libs.ws.WSClient
 import play.api.mvc._
 import play.api.inject.guice._
 import scala.concurrent._
+import scala.concurrent.ExecutionContext.Implicits.global
 
-class CirceSpec extends PlaySpec with GuiceOneServerPerSuite {
-
+class CirceSuite extends munit.FunSuite with Fakes {
+  val app                               = GuiceApplicationBuilder().build()
   private lazy val controllersComponent = app.injector.instanceOf[ControllerComponents]
   private lazy val circeController      = new CirceController(controllersComponent)
-  private def wsClient                  = app.injector.instanceOf[WSClient]
-  private lazy val url                  = s"http://127.0.0.1:$port"
   private lazy val fooJsonString        = circeController.customPrinter.print(Data.foo.asJson)
 
-  private def await[A](f: Future[A]): A = Await.result(f, duration.Duration.Inf)
+  implicit val actorSystem: ActorSystem = app.actorSystem
 
-  override def fakeApplication(): Application =
-    new GuiceApplicationBuilder()
-      .appRoutes(app => {
-        case ("GET", "/get")               => circeController.get
-        case ("POST", "/post")             => circeController.post
-        case ("POST", "/postJson")         => circeController.postJson
-        case ("POST", "/postTolerant")     => circeController.postTolerant
-        case ("POST", "/postTolerantJson") => circeController.postTolerantJson
-      })
-      .build()
+  case class Reply(
+    status: Int,
+    contentType: Option[String],
+    body: String
+  )
 
-  "Circe trait" must {
-    "server json" in {
-      val resp = await(wsClient.url(url + "/get").get())
-      resp.headers("Content-Type").head mustEqual "application/json"
-      resp.body mustEqual fooJsonString
-    }
-    "parse json as object" in {
-      val resp = wsClient
-        .url(url + "/post")
-        .addHttpHeaders("Content-Type" -> "application/json")
-        .post(fooJsonString)
-      await(resp).body mustEqual "true"
-    }
-    "parse json" in {
-      val resp = wsClient
-        .url(url + "/postJson")
-        .addHttpHeaders("Content-Type" -> "application/json")
-        .post(fooJsonString)
-      await(resp).body mustEqual "true"
-    }
-    "parse json as obj for content type `text/html`" in {
-      val resp = wsClient
-        .url(url + "/postTolerant")
-        .post(fooJsonString)
-      await(resp).body mustEqual "true"
-    }
-    "parse json for content type `text/html`" in {
-      val resp = wsClient
-        .url(url + "/postTolerantJson")
-        .post(fooJsonString)
-      await(resp).body mustEqual "true"
-    }
-    "report 415 while parsing non-json content-type" in {
-      val resp = wsClient
-        .url(url + "/post")
-        .post(fooJsonString)
-      await(resp).status mustEqual 415
-    }
-    "report 400 while parsing invalid json String" in {
-      val resp = wsClient
-        .url(url + "/post")
-        .withHttpHeaders("Content-Type" -> "application/json")
-        .post("invalid json string")
-      await(resp).status mustEqual 400
-    }
-    "report 400 if decode failed" in {
-      val resp = wsClient
-        .url(url + "/post")
-        .withHttpHeaders("Content-Type" -> "application/json")
-        .post("{}")
-      await(resp).status mustEqual 400
+  def call(action: EssentialAction, hd: RequestHeader, body: ByteString)(implicit
+    mat: Materializer
+  ): Future[Reply] = {
+    action(hd).run(Source.single(body)).flatMap { (result) =>
+      val body = result.body
+      val cs = body.contentType
+        .flatMap { s =>
+          if(s.contains("charset=")) Some(s.split("; *charset=").drop(1).mkString.trim) else None
+        }
+        .getOrElse("utf-8")
+      body.consumeData.map(_.decodeString(cs)).map { bd =>
+        Reply(result.header.status, body.contentType, bd)
+      }
     }
   }
+
+  def call(action: EssentialAction, req: FakeReq): Future[Reply] = {
+    val hds = req.requestHeader
+    call(action, hds, req.body)
+  }
+
+  test("server json") {
+    call(circeController.get, FakeReq.get("/get")).map {
+      case Reply(_, ct, bd) =>
+        assertEquals(ct, Some("application/json"))
+        assertEquals(bd, fooJsonString)
+    }
+  }
+
+  test("parse case class") {
+    call(circeController.post, FakeReq.post("/post").withTextBody("application/json", fooJsonString)).map { case Reply(_, ct, bd) =>
+      assertEquals(ct, Some("text/plain; charset=utf-8"))
+      assertEquals(bd, "true")
+    }
+  }
+  test("parse json") {
+    call(circeController.postJson, FakeReq.post("/postJson").withTextBody("application/json", fooJsonString)).map {
+      case Reply(_, ct, bd) =>
+        assertEquals(ct, Some("text/plain; charset=utf-8"))
+        assertEquals(bd, "true")
+    }
+  }
+
+  test("parse `plain/text` as json") {
+    call(circeController.postTolerantJson, FakeReq.post("/postTolerantJson").withTextBody("text/plain;charset=utf-8", fooJsonString)).map {
+      case Reply(_, ct, bd) =>
+        assertEquals(ct, Some("text/plain; charset=utf-8"))
+        assertEquals(bd, "true")
+    }
+  }
+
+  test("parse `text/html` as json") {
+    call(circeController.postTolerantJson, FakeReq.post("/postTolerantJson").withTextBody("text/html;charset=utf-8", fooJsonString)).map {
+      case Reply(_, ct, bd) =>
+        assertEquals(ct, Some("text/plain; charset=utf-8"))
+        assertEquals(bd, "true")
+    }
+  }
+
+
+  test("invalid content-type") {
+    call(circeController.post, FakeReq.post("/post").withTextBody("text/html;charset=utf-8", fooJsonString)).map {
+      case Reply(s, ct, bd) =>
+        assertEquals(s, 415)
+    }
+  }
+  test("invalid json string") {
+    call(circeController.post, FakeReq.post("/post").withTextBody("application/json", "not a json string")).map {
+      case Reply(s, ct, bd) =>
+        assertEquals(s, 400)
+    }
+  }
+  test("report 400 if decode failed") {
+    call(circeController.post, FakeReq.post("/post").withTextBody("application/json", "{}")).map {
+      case Reply(s, ct, bd) =>
+        assertEquals(s, 400)
+    }
+  }
+
 }

@@ -1,38 +1,43 @@
 import ReleaseTransformations._
 
 organization := "com.dripower"
-
-name := "play-circe"
-
+name         := "play-circe"
 scalaVersion := "2.13.10"
 
-crossScalaVersions := Seq("2.12.17", "2.13.10")
+crossScalaVersions := Seq("2.12.17", "2.13.10", "3.3.0")
 
-libraryDependencies ++= {
-  val playV  = "2.8.19"
-  val circeV = "0.14.5"
-  Seq(
-    "io.circe"               %% "circe-core"            % circeV,
-    "io.circe"               %% "circe-parser"          % circeV,
-    "com.typesafe.play"      %% "play"                  % playV   % Provided,
-    "io.circe"               %% "circe-generic"         % circeV  % Test,
-    "org.scalatestplus.play" %% "scalatestplus-play"    % "5.1.0" % Test,
-    "com.typesafe.play"      %% "play-ws"               % playV   % Test,
-    "com.typesafe.play"      %% "play-akka-http-server" % playV   % Test
-  )
-}
+val playV  = "2.8.19"
+val circeV = "0.14.5"
 
-scalacOptions ++= Seq(
-  "-deprecation",
-  "-encoding",
-  "UTF-8",
-  "-feature",
-  "-unchecked",
-  "-Xlint",
-  "-Ywarn-dead-code",
-  "-Ywarn-numeric-widen",
-  "-Ywarn-value-discard"
+val crossDeps = Seq(
+  "io.circe"      %% "circe-core"    % circeV,
+  "io.circe"      %% "circe-parser"  % circeV,
+  "io.circe"      %% "circe-generic" % circeV     % Test,
+  "org.scalameta" %% "munit"         % "1.0.0-M7" % Test,
+  "org.hamcrest"   % "hamcrest"      % "2.2"      % Test
 )
+
+val scala2Deps = Seq(
+  "com.typesafe.play" %% "play"       % playV % Provided,
+  "com.typesafe.play" %% "play-guice" % playV % Provided
+).map(_.cross(CrossVersion.for3Use2_13))
+
+libraryDependencies ++= (crossDeps ++ scala2Deps)
+
+scalacOptions := {
+  val base = Seq(
+    "-release:11",
+    "-deprecation",
+    "-encoding",
+    "UTF-8",
+    "-feature"
+  )
+  if (scalaVersion.value.startsWith("3.")) {
+    base
+  } else {
+    base ++ Seq("-Xlint")
+  }
+}
 
 // POM settings for Sonatype
 homepage := Some(url("https://github.com/jilen/play-circe"))
