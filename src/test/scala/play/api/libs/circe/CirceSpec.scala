@@ -19,19 +19,19 @@ class CirceSuite extends munit.FunSuite with Fakes {
   implicit val actorSystem: ActorSystem = app.actorSystem
 
   case class Reply(
-    status: Int,
-    contentType: Option[String],
-    body: String
+      status: Int,
+      contentType: Option[String],
+      body: String
   )
 
   def call(action: EssentialAction, hd: RequestHeader, body: ByteString)(implicit
-    mat: Materializer
+      mat: Materializer
   ): Future[Reply] = {
     action(hd).run(Source.single(body)).flatMap { (result) =>
       val body = result.body
       val cs = body.contentType
         .flatMap { s =>
-          if(s.contains("charset=")) Some(s.split("; *charset=").drop(1).mkString.trim) else None
+          if (s.contains("charset=")) Some(s.split("; *charset=").drop(1).mkString.trim) else None
         }
         .getOrElse("utf-8")
       body.consumeData.map(_.decodeString(cs)).map { bd =>
@@ -46,17 +46,17 @@ class CirceSuite extends munit.FunSuite with Fakes {
   }
 
   test("server json") {
-    call(circeController.get, FakeReq.get("/get")).map {
-      case Reply(_, ct, bd) =>
-        assertEquals(ct, Some("application/json"))
-        assertEquals(bd, fooJsonString)
+    call(circeController.get, FakeReq.get("/get")).map { case Reply(_, ct, bd) =>
+      assertEquals(ct, Some("application/json"))
+      assertEquals(bd, fooJsonString)
     }
   }
 
   test("parse case class") {
-    call(circeController.post, FakeReq.post("/post").withTextBody("application/json", fooJsonString)).map { case Reply(_, ct, bd) =>
-      assertEquals(ct, Some("text/plain; charset=utf-8"))
-      assertEquals(bd, "true")
+    call(circeController.post, FakeReq.post("/post").withTextBody("application/json", fooJsonString)).map {
+      case Reply(_, ct, bd) =>
+        assertEquals(ct, Some("text/plain; charset=utf-8"))
+        assertEquals(bd, "true")
     }
   }
   test("parse json") {
@@ -68,21 +68,24 @@ class CirceSuite extends munit.FunSuite with Fakes {
   }
 
   test("parse `plain/text` as json") {
-    call(circeController.postTolerantJson, FakeReq.post("/postTolerantJson").withTextBody("text/plain;charset=utf-8", fooJsonString)).map {
-      case Reply(_, ct, bd) =>
-        assertEquals(ct, Some("text/plain; charset=utf-8"))
-        assertEquals(bd, "true")
+    call(
+      circeController.postTolerantJson,
+      FakeReq.post("/postTolerantJson").withTextBody("text/plain;charset=utf-8", fooJsonString)
+    ).map { case Reply(_, ct, bd) =>
+      assertEquals(ct, Some("text/plain; charset=utf-8"))
+      assertEquals(bd, "true")
     }
   }
 
   test("parse `text/html` as json") {
-    call(circeController.postTolerantJson, FakeReq.post("/postTolerantJson").withTextBody("text/html;charset=utf-8", fooJsonString)).map {
-      case Reply(_, ct, bd) =>
-        assertEquals(ct, Some("text/plain; charset=utf-8"))
-        assertEquals(bd, "true")
+    call(
+      circeController.postTolerantJson,
+      FakeReq.post("/postTolerantJson").withTextBody("text/html;charset=utf-8", fooJsonString)
+    ).map { case Reply(_, ct, bd) =>
+      assertEquals(ct, Some("text/plain; charset=utf-8"))
+      assertEquals(bd, "true")
     }
   }
-
 
   test("invalid content-type") {
     call(circeController.post, FakeReq.post("/post").withTextBody("text/html;charset=utf-8", fooJsonString)).map {
