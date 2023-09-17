@@ -12,9 +12,9 @@ val circeV = "0.14.6"
 val crossDeps = Seq(
   "io.circe"      %% "circe-core"    % circeV,
   "io.circe"      %% "circe-parser"  % circeV,
-  "io.circe"      %% "circe-generic" % circeV     % Test,
-  "org.scalameta" %% "munit"         % "1.0.0-M8" % Test,
-  "org.hamcrest"   % "hamcrest"      % "2.2"      % Test
+  "io.circe"      %% "circe-generic" % circeV      % Test,
+  "org.scalameta" %% "munit"         % "1.0.0-M10" % Test,
+  "org.hamcrest"   % "hamcrest"      % "2.2"       % Test
 )
 
 val scala2Deps = Seq(
