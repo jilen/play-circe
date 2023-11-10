@@ -1,7 +1,7 @@
 package play.api.libs.circe
 
-import akka.stream.scaladsl.{Flow, Sink}
-import akka.util.ByteString
+import org.apache.pekko.stream.scaladsl.{Flow, Sink}
+import org.apache.pekko.util.ByteString
 import cats.syntax.all._
 import io.circe.{Codec => _, _}
 import org.slf4j._

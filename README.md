@@ -20,6 +20,10 @@ For play 2.8.x
 
 > libraryDependencies += "com.dripower" %% "play-circe" % "2814.1"
 
+For play 3.0.x
+
+> libraryDependencies += "com.dripower" %% "play-circe" % "3000.0"
+
 
 Usage
 -----

@@ -1,6 +1,6 @@
 package play.api.libs.circe
 
-import akka.util.ByteString
+import org.apache.pekko.util.ByteString
 
 import java.net.URI
 import java.security.cert.X509Certificate
