@@ -22,7 +22,7 @@ For play 2.8.x
 
 For play 3.0.x
 
-> libraryDependencies += "com.dripower" %% "play-circe" % "3000.0"
+> libraryDependencies += "com.dripower" %% "play-circe" % "3014.0"
 
 
 Usage
