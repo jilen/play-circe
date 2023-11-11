@@ -1,41 +1,32 @@
 import ReleaseTransformations._
 
-organization       := "com.dripower"
-name               := "play-circe"
-scalaVersion       := "2.13.12"
-crossScalaVersions := Seq("2.12.18", "2.13.12", "3.3.1")
+organization := "com.dripower"
+name         := "play-circe"
+scalaVersion := "3.3.1"
 
-val playV  = "2.8.20"
+val playV  = "3.0.0"
 val circeV = "0.14.6"
 
 val crossDeps = Seq(
-  "io.circe"      %% "circe-core"    % circeV,
-  "io.circe"      %% "circe-parser"  % circeV,
-  "io.circe"      %% "circe-generic" % circeV      % Test,
-  "org.scalameta" %% "munit"         % "1.0.0-M10" % Test,
-  "org.hamcrest"   % "hamcrest"      % "2.2"       % Test
+  "io.circe"          %% "circe-core"    % circeV,
+  "io.circe"          %% "circe-parser"  % circeV,
+  "io.circe"          %% "circe-generic" % circeV      % Test,
+  "org.scalameta"     %% "munit"         % "1.0.0-M10" % Test,
+  "org.hamcrest"       % "hamcrest"      % "2.2"       % Test,
+  "org.playframework" %% "play"          % playV       % Provided,
+  "org.playframework" %% "play-guice"    % playV       % Provided
 )
 
-val scala2Deps = Seq(
-  "com.typesafe.play" %% "play"       % playV % Provided,
-  "com.typesafe.play" %% "play-guice" % playV % Provided
-).map(_.cross(CrossVersion.for3Use2_13))
-
-libraryDependencies ++= (crossDeps ++ scala2Deps)
+libraryDependencies ++= crossDeps
 
 scalacOptions := {
-  val base = Seq(
+  Seq(
     "-release:11",
     "-deprecation",
     "-encoding",
     "UTF-8",
     "-feature"
   )
-  if (scalaVersion.value.startsWith("3.")) {
-    base
-  } else {
-    base ++ Seq("-Xlint")
-  }
 }
 
 // POM settings for Sonatype

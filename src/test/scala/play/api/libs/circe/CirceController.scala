@@ -1,6 +1,6 @@
 package play.api.libs.circe
 
-import akka.actor._
+import org.apache.pekko.actor._
 import io.circe.{Printer, Json}
 import io.circe.syntax._
 import play.api.mvc._
