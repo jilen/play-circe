@@ -5,7 +5,7 @@ name               := "play-circe"
 scalaVersion       := "3.3.1"
 crossScalaVersions := Seq("2.13.12", scalaVersion.value)
 
-val playV  = "3.0.1"
+val playV  = "3.0.2"
 val circeV = "0.14.6"
 
 val crossDeps = Seq(
