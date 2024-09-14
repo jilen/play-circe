@@ -6,13 +6,13 @@ scalaVersion       := "3.3.3"
 crossScalaVersions := Seq("2.13.14", scalaVersion.value)
 
 val playV  = "3.0.5"
-val circeV = "0.14.8"
+val circeV = "0.14.10"
 
 val crossDeps = Seq(
   "io.circe"          %% "circe-core"    % circeV,
   "io.circe"          %% "circe-parser"  % circeV,
   "io.circe"          %% "circe-generic" % circeV  % Test,
-  "org.scalameta"     %% "munit"         % "1.0.0" % Test,
+  "org.scalameta"     %% "munit"         % "1.0.1" % Test,
   "org.hamcrest"       % "hamcrest"      % "2.2"   % Test,
   "org.playframework" %% "play"          % playV   % Provided,
   "org.playframework" %% "play-guice"    % playV   % Provided
