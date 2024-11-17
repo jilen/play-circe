@@ -3,7 +3,7 @@ import ReleaseTransformations._
 organization       := "com.dripower"
 name               := "play-circe"
 scalaVersion       := "3.3.4"
-crossScalaVersions := Seq("2.13.14", scalaVersion.value)
+crossScalaVersions := Seq("2.13.15", scalaVersion.value)
 
 val playV  = "3.0.5"
 val circeV = "0.14.10"
