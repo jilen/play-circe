@@ -20,7 +20,7 @@ val crossDeps = Seq(
 
 libraryDependencies ++= crossDeps
 
-scalacOptions := {
+scalacOptions ++= {
   Seq(
     "-release:11",
     "-deprecation",
@@ -28,6 +28,21 @@ scalacOptions := {
     "UTF-8",
     "-feature"
   )
+}
+
+scalacOptions ++= {
+  scalaBinaryVersion.value match {
+    case "2.12" =>
+      Seq(
+        "-Xsource:3"
+      )
+    case "2.13" =>
+      Seq(
+        "-Xsource:3-cross"
+      )
+    case _ =>
+      Nil
+  }
 }
 
 // POM settings for Sonatype
