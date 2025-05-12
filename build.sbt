@@ -2,8 +2,8 @@ import ReleaseTransformations._
 
 organization       := "com.dripower"
 name               := "play-circe"
-scalaVersion       := "3.3.5"
-crossScalaVersions := Seq("2.13.14", scalaVersion.value)
+scalaVersion       := "3.3.6"
+crossScalaVersions := Seq("2.13.16", scalaVersion.value)
 
 val playV  = "3.0.7"
 val circeV = "0.14.13"
@@ -20,7 +20,7 @@ val crossDeps = Seq(
 
 libraryDependencies ++= crossDeps
 
-scalacOptions := {
+scalacOptions ++= {
   Seq(
     "-release:11",
     "-deprecation",
@@ -28,6 +28,21 @@ scalacOptions := {
     "UTF-8",
     "-feature"
   )
+}
+
+scalacOptions ++= {
+  scalaBinaryVersion.value match {
+    case "2.12" =>
+      Seq(
+        "-Xsource:3"
+      )
+    case "2.13" =>
+      Seq(
+        "-Xsource:3-cross"
+      )
+    case _ =>
+      Nil
+  }
 }
 
 // POM settings for Sonatype

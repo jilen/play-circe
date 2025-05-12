@@ -64,7 +64,7 @@ trait Fakes {
       target = target,
       version = version,
       headers = Headers(hds: _*),
-      attrs = attrs + (RequestAttrKey.Id -> id)
+      attrs = attrs.updated(RequestAttrKey.Id -> id)
     )
   }
 }
