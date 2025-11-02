@@ -29,7 +29,7 @@ class CirceSuite extends munit.FunSuite with Fakes {
   ): Future[Reply] = {
     action(hd).run(Source.single(body)).flatMap { (result) =>
       val body = result.body
-      val cs = body.contentType
+      val cs   = body.contentType
         .flatMap { s =>
           if (s.contains("charset=")) Some(s.split("; *charset=").drop(1).mkString.trim) else None
         }
