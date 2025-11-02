@@ -32,7 +32,7 @@ trait Fakes {
   }
 
   object FakeReq {
-    def get(path: String): FakeReq = FakeReq(method = "GET", path = path, headers = Seq.empty, body = ByteString.empty)
+    def get(path: String): FakeReq  = FakeReq(method = "GET", path = path, headers = Seq.empty, body = ByteString.empty)
     def post(path: String): FakeReq =
       FakeReq(method = "POST", path = path, headers = Seq.empty, body = ByteString.empty)
   }
@@ -50,8 +50,8 @@ trait Fakes {
     val secure: Boolean                                      = false
     val clientCertificateChain: Option[Seq[X509Certificate]] = None
     val attrs: TypedMap                                      = TypedMap.empty
-    val conn = RemoteConnection(remoteAddress, secure, clientCertificateChain)
-    val _uri = uri
+    val conn   = RemoteConnection(remoteAddress, secure, clientCertificateChain)
+    val _uri   = uri
     val target = new RequestTarget {
       override lazy val uri: URI                           = new URI(uriString)
       override def uriString: String                       = _uri
